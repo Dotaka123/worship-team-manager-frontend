@@ -67,23 +67,23 @@ const Members = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="text-2xl font-bold text-gray-700">⏳ Chargement...</div>
+      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="text-4xl font-black text-white animate-pulse">⏳ Chargement...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* En-tête */}
-        <div className="mb-8 bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-600">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-            <Users className="w-10 h-10 text-blue-600" />
+        <div className="mb-8 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl p-8 border-4 border-purple-500">
+          <h1 className="text-5xl font-black text-white mb-3 flex items-center gap-4">
+            <Users className="w-12 h-12" />
             Gestion des membres
           </h1>
-          <p className="text-xl text-gray-700 font-semibold">
-            {members.length} membre{members.length > 1 ? 's' : ''} au total
+          <p className="text-2xl text-white font-bold">
+            🎵 {members.length} membre{members.length > 1 ? 's' : ''} dans l'équipe
           </p>
         </div>
 
@@ -91,19 +91,19 @@ const Members = () => {
         <div className="flex flex-wrap gap-4 mb-8">
           <button
             onClick={() => setShowForm(true)}
-            className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all flex items-center gap-3 font-bold text-lg shadow-lg hover:shadow-xl"
+            className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white px-8 py-4 rounded-xl hover:from-green-500 hover:via-emerald-500 hover:to-teal-500 transition-all flex items-center gap-3 font-black text-xl shadow-2xl hover:shadow-green-500/50 active:scale-95"
           >
-            <Plus className="w-6 h-6" />
+            <Plus className="w-7 h-7" />
             Nouveau membre
           </button>
 
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-6 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 font-bold text-lg bg-white shadow-md"
+            className="px-6 py-4 bg-slate-800 border-2 border-purple-600 rounded-xl focus:ring-2 focus:ring-purple-500 text-white font-black text-lg shadow-xl"
           >
-            <option value="all">📋 Tous les statuts</option>
-            <option value="actif">✅ Actifs uniquement</option>
+            <option value="all">📋 Tous</option>
+            <option value="actif">✅ Actifs</option>
             <option value="en_pause">⏸️ En pause</option>
             <option value="inactif">❌ Inactifs</option>
           </select>
@@ -111,10 +111,10 @@ const Members = () => {
 
         {/* Liste des membres */}
         {filteredMembers.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-xl shadow-lg border-2 border-dashed border-gray-300">
-            <Users className="w-20 h-20 mx-auto text-gray-400 mb-4" />
-            <p className="text-gray-700 text-2xl font-bold">Aucun membre trouvé</p>
-            <p className="text-gray-600 text-lg mt-2">Ajoutez votre premier membre pour commencer</p>
+          <div className="text-center py-20 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl border-4 border-dashed border-purple-600">
+            <Users className="w-24 h-24 mx-auto text-purple-400 mb-6" />
+            <p className="text-white text-3xl font-black mb-2">Aucun membre trouvé</p>
+            <p className="text-purple-300 text-xl font-bold">Ajoutez votre premier membre !</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
