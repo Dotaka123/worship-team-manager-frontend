@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://worship-team-manager-4sl8yryku-dotaka123s-projects.vercel.app/api';
+const API_URL = 'https://worship-team-manager.onrender.com/api';
 
 // Instance axios configurée
 const api = axios.create({
