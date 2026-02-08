@@ -34,15 +34,15 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-slate-700">
         {/* En-tête */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200 sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-xl">
-          <h2 className="text-2xl font-bold">
+        <div className="flex justify-between items-center p-6 border-b-2 border-slate-700 sticky top-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
+          <h2 className="text-3xl font-black text-white">
             {member ? '✏️ Modifier le membre' : '➕ Nouveau membre'}
           </h2>
-          <button onClick={onClose} className="text-white hover:bg-blue-800 rounded-full p-1 transition-colors">
-            <X className="w-7 h-7" />
+          <button onClick={onClose} className="text-white hover:bg-white/20 rounded-full p-2 transition-colors">
+            <X className="w-8 h-8" />
           </button>
         </div>
 
@@ -52,8 +52,8 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
           {/* Identité */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-gray-800 mb-2">
-                Prénom *
+              <label className="block text-base font-black text-blue-300 mb-2">
+                👤 Prénom *
               </label>
               <input
                 type="text"
@@ -61,13 +61,14 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
                 value={formData.firstName}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
+                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white font-bold placeholder-slate-400"
+                placeholder="Jean"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-bold text-gray-800 mb-2">
-                Nom *
+              <label className="block text-base font-black text-blue-300 mb-2">
+                👤 Nom *
               </label>
               <input
                 type="text"
@@ -75,7 +76,8 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
                 value={formData.lastName}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
+                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white font-bold placeholder-slate-400"
+                placeholder="Dupont"
               />
             </div>
           </div>
@@ -83,7 +85,7 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
           {/* Contact */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-gray-800 mb-2">
+              <label className="block text-base font-black text-cyan-300 mb-2">
                 📧 Email *
               </label>
               <input
@@ -92,12 +94,13 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
+                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-white font-bold placeholder-slate-400"
+                placeholder="jean@example.com"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-bold text-gray-800 mb-2">
+              <label className="block text-base font-black text-green-300 mb-2">
                 📱 Téléphone
               </label>
               <input
@@ -105,7 +108,8 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
+                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-white font-bold placeholder-slate-400"
+                placeholder="0612345678"
               />
             </div>
           </div>
@@ -113,30 +117,30 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
           {/* Rôle et instrument */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-gray-800 mb-2">
-                👤 Rôle
+              <label className="block text-base font-black text-purple-300 mb-2">
+                🎭 Rôle
               </label>
               <input
                 type="text"
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                placeholder="Ex: Chanteur, Musicien..."
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
+                placeholder="Chanteur, Musicien..."
+                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white font-bold placeholder-slate-400"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-bold text-gray-800 mb-2">
-                🎸 Instrument / Spécialité
+              <label className="block text-base font-black text-pink-300 mb-2">
+                🎸 Instrument
               </label>
               <input
                 type="text"
                 name="instrument"
                 value={formData.instrument}
                 onChange={handleChange}
-                placeholder="Ex: Guitare, 3ème voix..."
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
+                placeholder="Guitare, Piano..."
+                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 text-white font-bold placeholder-slate-400"
               />
             </div>
           </div>
@@ -144,21 +148,21 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
           {/* Groupe et statut */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-gray-800 mb-2">
-                🎵 Groupe / Équipe
+              <label className="block text-base font-black text-indigo-300 mb-2">
+                🎵 Groupe
               </label>
               <input
                 type="text"
                 name="groupe"
                 value={formData.groupe}
                 onChange={handleChange}
-                placeholder="Ex: Louange principale..."
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
+                placeholder="Louange principale..."
+                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white font-bold placeholder-slate-400"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-bold text-gray-800 mb-2">
+              <label className="block text-base font-black text-yellow-300 mb-2">
                 📊 Statut *
               </label>
               <select
@@ -166,7 +170,7 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
                 value={formData.status}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-bold bg-white"
+                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-white font-black"
               >
                 <option value="actif">✅ Actif</option>
                 <option value="en_pause">⏸️ En pause</option>
@@ -177,7 +181,7 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
 
           {/* Date d'entrée */}
           <div>
-            <label className="block text-sm font-bold text-gray-800 mb-2">
+            <label className="block text-base font-black text-orange-300 mb-2">
               📅 Date d'entrée
             </label>
             <input
@@ -185,14 +189,14 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
               name="dateEntree"
               value={formData.dateEntree}
               onChange={handleChange}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
+              className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-white font-bold"
             />
           </div>
 
           {/* Notes */}
           <div>
-            <label className="block text-sm font-bold text-gray-800 mb-2">
-              📝 Notes d'accompagnement
+            <label className="block text-base font-black text-teal-300 mb-2">
+              📝 Notes
             </label>
             <textarea
               name="notesAccompagnement"
@@ -200,28 +204,28 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
               onChange={handleChange}
               rows="3"
               maxLength="500"
-              placeholder="Informations pastorales, besoins particuliers..."
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 font-medium"
+              placeholder="Informations pastorales..."
+              className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-white font-bold placeholder-slate-400"
             />
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-sm text-slate-400 mt-2 font-semibold">
               {formData.notesAccompagnement.length} / 500 caractères
             </p>
           </div>
 
           {/* Boutons */}
-          <div className="flex gap-4 pt-4 border-t-2 border-gray-200">
+          <div className="flex gap-4 pt-6 border-t-2 border-slate-700">
             <button
               type="submit"
-              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-6 rounded-lg hover:from-blue-700 hover:to-blue-800 font-bold text-lg transition-all shadow-lg hover:shadow-xl"
+              className="flex-1 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white py-4 px-6 rounded-xl hover:from-green-500 hover:via-emerald-500 hover:to-teal-500 font-black text-xl transition-all shadow-2xl hover:shadow-green-500/50 active:scale-95"
             >
-              {member ? '✅ Mettre à jour' : '➕ Créer le membre'}
+              {member ? '✅ Mettre à jour' : '➕ Créer'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="px-8 py-4 border-2 border-gray-400 rounded-lg hover:bg-gray-100 font-bold text-gray-700 text-lg transition-all"
+              className="px-8 py-4 bg-slate-700 hover:bg-slate-600 border-2 border-slate-600 rounded-xl font-black text-white text-xl transition-all active:scale-95"
             >
-              Annuler
+              ❌ Annuler
             </button>
           </div>
         </form>
