@@ -110,12 +110,13 @@ const MemberDetail = () => {
     { name: 'Non payé', value: stats?.cotisationsNonPaye || 0, color: '#ef4444' },
   ];
 
-  // Données pour les charts présences
-  const presencePieData = [
-    { name: 'Présent', value: stats?.totalPresent || 0, color: '#10b981' },
-    { name: 'Absent', value: stats?.totalAbsent || 0, color: '#ef4444' },
-    { name: 'Retard', value: stats?.totalRetard || 0, color: '#f59e0b' },
-  ];
+// Données pour les charts présences - avec excused
+const presencePieData = [
+  { name: 'Présent', value: stats?.totalPresent || 0, color: '#10b981' },
+  { name: 'Absent', value: stats?.totalAbsent || 0, color: '#ef4444' },
+  { name: 'Retard', value: stats?.totalRetard || 0, color: '#f59e0b' },
+  { name: 'Excusé', value: stats?.totalExcused || 0, color: '#8b5cf6' },
+];
 
   const chartData = stats?.cotisationsChart?.map(c => ({
     mois: c.mois.split('-')[1] + '/' + c.mois.split('-')[0].slice(2),
