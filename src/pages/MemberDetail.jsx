@@ -533,16 +533,18 @@ const presencePieData = [
                             <td className="px-6 py-4 text-neutral-300 capitalize">
                               {p.repetition?.type || 'Répétition'}
                             </td>
-                            <td className="px-6 py-4">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                p.status === 'present' ? 'bg-emerald-500/20 text-emerald-400' :
-                                p.status === 'retard' ? 'bg-amber-500/20 text-amber-400' :
-                                'bg-red-500/20 text-red-400'
-                              }`}>
-                                {p.status === 'present' ? 'Présent' : 
-                                 p.status === 'retard' ? 'Retard' : 'Absent'}
-                              </span>
-                            </td>
+<td className="px-6 py-4">
+  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+    p.status === 'present' ? 'bg-emerald-500/20 text-emerald-400' :
+    p.status === 'en_retard' ? 'bg-amber-500/20 text-amber-400' :
+    p.status === 'excused' ? 'bg-violet-500/20 text-violet-400' :
+    'bg-red-500/20 text-red-400'
+  }`}>
+    {p.status === 'present' ? 'Présent' : 
+     p.status === 'en_retard' ? 'Retard' : 
+     p.status === 'excused' ? 'Excusé' : 'Absent'}
+  </span>
+</td>
                           </tr>
                         ))}
                       </tbody>
