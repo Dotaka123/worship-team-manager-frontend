@@ -34,7 +34,7 @@ const AttendanceTable = ({ members, attendance, onMark }) => {
             return (
               <tr key={member._id} className="border-b border-gray-800">
                 <td className="py-3 px-4">
-                  <span className="font-medium">{member.name}</span>
+                  <span className="font-medium">{member.firstName}</span>
                   {member.instrument && (
                     <span className="text-gray-500 text-sm ml-2">({member.instrument})</span>
                   )}
