@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, User, Mail, Phone, Music, Mic2, Users, Calendar, FileText, Check } from 'lucide-react';
+import { X, User, Mail, Phone, Music, Mic2, Calendar, FileText, Check } from 'lucide-react';
 
 const MemberForm = ({ member, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -9,7 +9,6 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
     phone: '',
     role: '',
     instrument: '',
-    groupe: '',
     status: 'actif',
     dateEntree: new Date().toISOString().split('T')[0],
     notesAccompagnement: ''
@@ -19,7 +18,9 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
     if (member) {
       setFormData({
         ...member,
-        dateEntree: member.dateEntree ? new Date(member.dateEntree).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+        dateEntree: member.dateEntree 
+          ? new Date(member.dateEntree).toISOString().split('T')[0] 
+          : new Date().toISOString().split('T')[0]
       });
     }
   }, [member]);
@@ -28,12 +29,34 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleRoleChange = (newRole) => {
+    setFormData({ 
+      ...formData, 
+      role: newRole,
+      instrument: '' // Réinitialise l'instrument quand le rôle change
+    });
+  };
+
+  const handleInstrumentChange = (newInstrument) => {
+    setFormData({ ...formData, instrument: newInstrument });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(formData);
   };
 
-  // Couleur d'accent unique : indigo
+  // Options d'instruments par rôle
+  const instrumentsByRole = {
+    chanteur: ['1ère voix', '2ème voix', '3ème voix'],
+    musicien: ['Clavier', 'Batterie', 'Basse', 'Solo', 'Sax'],
+    technicien: ['Écran', 'Table mixeur']
+  };
+
+  const buttonBase = "px-4 py-2 rounded-lg text-sm font-medium transition-all border";
+  const buttonActive = "bg-indigo-600 text-white border-indigo-600";
+  const buttonInactive = "bg-neutral-800 text-neutral-400 border-neutral-700 hover:border-neutral-600";
+
   const inputBase = "w-full px-3 py-2.5 bg-neutral-900 border border-neutral-800 rounded-md text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30 transition-colors";
   const labelBase = "flex items-center gap-2 text-xs font-medium text-neutral-500 uppercase tracking-wider mb-2";
 
@@ -126,73 +149,70 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
             </div>
           </div>
 
-          {/* Section Rôle et instrument */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={labelBase}>
-                <Mic2 className="w-3.5 h-3.5" />
-                Rôle
-              </label>
-              <input
-                type="text"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                placeholder="Chanteur, Chef d'orchestre..."
-                className={inputBase}
-              />
-            </div>
-            
-            <div>
-              <label className={labelBase}>
-                <Music className="w-3.5 h-3.5" />
-                Instrument
-              </label>
-              <input
-                type="text"
-                name="instrument"
-                value={formData.instrument}
-                onChange={handleChange}
-                placeholder="Guitare, Piano..."
-                className={inputBase}
-              />
+          {/* Section Rôle - BOUTONS */}
+          <div>
+            <label className={labelBase}>
+              <Mic2 className="w-3.5 h-3.5" />
+              Rôle
+            </label>
+            <div className="flex gap-3">
+              {['Chanteur(euse)', 'Musicien', 'Technicien'].map((role) => (
+                <button
+                  key={role}
+                  type="button"
+                  onClick={() => handleRoleChange(role.toLowerCase())}
+                  className={`${buttonBase} ${
+                    formData.role === role.toLowerCase() ? buttonActive : buttonInactive
+                  }`}
+                >
+                  {role}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Section Groupe et statut */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Section Instrument - BOUTONS DYNAMIQUES */}
+          {formData.role && (
             <div>
               <label className={labelBase}>
-                <Users className="w-3.5 h-3.5" />
-                Groupe
+                <Music className="w-3.5 h-3.5" />
+                {formData.role === 'chanteur(euse)' || formData.role === 'chanteur' ? 'Voix' : 
+                 formData.role === 'musicien' ? 'Instrument' : 'Équipement'}
               </label>
-              <input
-                type="text"
-                name="groupe"
-                value={formData.groupe}
-                onChange={handleChange}
-                placeholder="Louange principale..."
-                className={inputBase}
-              />
+              <div className="flex flex-wrap gap-2">
+                {instrumentsByRole[formData.role.toLowerCase()]?.map((instrument) => (
+                  <button
+                    key={instrument}
+                    type="button"
+                    onClick={() => handleInstrumentChange(instrument)}
+                    className={`${buttonBase} ${
+                      formData.instrument === instrument ? buttonActive : buttonInactive
+                    }`}
+                  >
+                    {instrument}
+                  </button>
+                ))}
+              </div>
             </div>
-            
-            <div>
-              <label className={labelBase}>
-                <Check className="w-3.5 h-3.5" />
-                Statut
-              </label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                required
-                className={`${inputBase} appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23737373%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat pr-10`}
-              >
-                <option value="actif">Actif</option>
-                <option value="en_pause">En pause</option>
-                <option value="inactif">Inactif</option>
-              </select>
-            </div>
+          )}
+
+          {/* Statut */}
+          <div>
+            <label className={labelBase}>
+              <Check className="w-3.5 h-3.5" />
+              Statut
+            </label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              required
+              className={`${inputBase} appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23737373%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat pr-10`}
+            >
+              <option value="actif">Actif</option>
+              <option value="en_pause">En pause</option>
+              <option value="inactif">Inactif</option>
+            </select>
           </div>
 
           {/* Date d'entrée */}
