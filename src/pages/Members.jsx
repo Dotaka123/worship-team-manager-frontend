@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Plus, Users, Search, Filter, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Users, Search, Loader2 } from 'lucide-react';
 import api from '../services/api';
 import MemberCard from '../components/MemberCard';
 import MemberForm from '../components/MemberForm';
 
 const Members = () => {
+  const navigate = useNavigate();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -44,12 +46,14 @@ const Members = () => {
     }
   };
 
-  const handleEdit = (member) => {
+  const handleEdit = (member, e) => {
+    e.stopPropagation();
     setSelectedMember(member);
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, e) => {
+    e.stopPropagation();
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) return;
     
     try {
@@ -59,6 +63,10 @@ const Members = () => {
       console.error('Erreur:', error);
       alert('Erreur lors de la suppression');
     }
+  };
+
+  const handleClick = (member) => {
+    navigate(`/members/${member._id}`);
   };
 
   const filteredMembers = members.filter(member => {
@@ -111,7 +119,6 @@ const Members = () => {
 
         {/* Barre d'outils */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          {/* Recherche */}
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
             <input
@@ -123,8 +130,7 @@ const Members = () => {
             />
           </div>
 
-          {/* Filtres */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 overflow-x-auto">
             {[
               { key: 'all', label: 'Tous', count: statusCount.all },
               { key: 'actif', label: 'Actifs', count: statusCount.actif },
@@ -134,7 +140,7 @@ const Members = () => {
               <button
                 key={key}
                 onClick={() => setFilterStatus(key)}
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
                   filterStatus === key
                     ? 'bg-neutral-800 text-neutral-200 border border-neutral-700'
                     : 'text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900'
@@ -146,7 +152,6 @@ const Members = () => {
             ))}
           </div>
 
-          {/* Bouton ajouter */}
           <button
             onClick={() => setShowForm(true)}
             className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 active:bg-indigo-800 transition-colors shrink-0"
@@ -173,14 +178,14 @@ const Members = () => {
               <MemberCard
                 key={member._id}
                 member={member}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
+                onClick={() => handleClick(member)}
+                onEdit={(e) => handleEdit(member, e)}
+                onDelete={(e) => handleDelete(member._id, e)}
               />
             ))}
           </div>
         )}
 
-        {/* Formulaire modal */}
         {showForm && (
           <MemberForm
             member={selectedMember}
