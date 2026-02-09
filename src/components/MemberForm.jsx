@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, User, Mail, Phone, Music, Mic2, Users, Calendar, FileText, Check } from 'lucide-react';
 
 const MemberForm = ({ member, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -33,27 +33,36 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
     onSubmit(formData);
   };
 
+  // Couleur d'accent unique : indigo
+  const inputBase = "w-full px-3 py-2.5 bg-neutral-900 border border-neutral-800 rounded-md text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30 transition-colors";
+  const labelBase = "flex items-center gap-2 text-xs font-medium text-neutral-500 uppercase tracking-wider mb-2";
+
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-slate-700">
+    <div className="fixed inset-0 bg-neutral-950/90 flex items-center justify-center p-4 z-50">
+      <div className="bg-neutral-900 border border-neutral-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+        
         {/* En-tête */}
-        <div className="flex justify-between items-center p-6 border-b-2 border-slate-700 sticky top-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
-          <h2 className="text-3xl font-black text-white">
-            {member ? '✏️ Modifier le membre' : '➕ Nouveau membre'}
+        <div className="flex justify-between items-center px-6 py-4 border-b border-neutral-800 sticky top-0 bg-neutral-900">
+          <h2 className="text-base font-semibold text-neutral-100 tracking-tight">
+            {member ? 'Modifier le membre' : 'Nouveau membre'}
           </h2>
-          <button onClick={onClose} className="text-white hover:bg-white/20 rounded-full p-2 transition-colors">
-            <X className="w-8 h-8" />
+          <button 
+            onClick={onClose} 
+            className="text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 rounded-md p-1.5 transition-colors"
+          >
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Formulaire */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
           
-          {/* Identité */}
+          {/* Section Identité */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-base font-black text-blue-300 mb-2">
-                👤 Prénom *
+              <label className={labelBase}>
+                <User className="w-3.5 h-3.5" />
+                Prénom
               </label>
               <input
                 type="text"
@@ -61,14 +70,15 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
                 value={formData.firstName}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white font-bold placeholder-slate-400"
+                className={inputBase}
                 placeholder="Jean"
               />
             </div>
             
             <div>
-              <label className="block text-base font-black text-blue-300 mb-2">
-                👤 Nom *
+              <label className={labelBase}>
+                <User className="w-3.5 h-3.5" />
+                Nom
               </label>
               <input
                 type="text"
@@ -76,17 +86,18 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
                 value={formData.lastName}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white font-bold placeholder-slate-400"
+                className={inputBase}
                 placeholder="Dupont"
               />
             </div>
           </div>
 
-          {/* Contact */}
+          {/* Section Contact */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-base font-black text-cyan-300 mb-2">
-                📧 Email *
+              <label className={labelBase}>
+                <Mail className="w-3.5 h-3.5" />
+                Email
               </label>
               <input
                 type="email"
@@ -94,45 +105,48 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-white font-bold placeholder-slate-400"
-                placeholder="jean@example.com"
+                className={inputBase}
+                placeholder="jean@email.com"
               />
             </div>
             
             <div>
-              <label className="block text-base font-black text-green-300 mb-2">
-                📱 Téléphone
+              <label className={labelBase}>
+                <Phone className="w-3.5 h-3.5" />
+                Téléphone
               </label>
               <input
                 type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-white font-bold placeholder-slate-400"
-                placeholder="0612345678"
+                className={inputBase}
+                placeholder="06 12 34 56 78"
               />
             </div>
           </div>
 
-          {/* Rôle et instrument */}
+          {/* Section Rôle et instrument */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-base font-black text-purple-300 mb-2">
-                🎭 Rôle
+              <label className={labelBase}>
+                <Mic2 className="w-3.5 h-3.5" />
+                Rôle
               </label>
               <input
                 type="text"
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                placeholder="Chanteur, Musicien..."
-                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-white font-bold placeholder-slate-400"
+                placeholder="Chanteur, Chef d'orchestre..."
+                className={inputBase}
               />
             </div>
             
             <div>
-              <label className="block text-base font-black text-pink-300 mb-2">
-                🎸 Instrument
+              <label className={labelBase}>
+                <Music className="w-3.5 h-3.5" />
+                Instrument
               </label>
               <input
                 type="text"
@@ -140,16 +154,17 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
                 value={formData.instrument}
                 onChange={handleChange}
                 placeholder="Guitare, Piano..."
-                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 text-white font-bold placeholder-slate-400"
+                className={inputBase}
               />
             </div>
           </div>
 
-          {/* Groupe et statut */}
+          {/* Section Groupe et statut */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-base font-black text-indigo-300 mb-2">
-                🎵 Groupe
+              <label className={labelBase}>
+                <Users className="w-3.5 h-3.5" />
+                Groupe
               </label>
               <input
                 type="text"
@@ -157,46 +172,49 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
                 value={formData.groupe}
                 onChange={handleChange}
                 placeholder="Louange principale..."
-                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white font-bold placeholder-slate-400"
+                className={inputBase}
               />
             </div>
             
             <div>
-              <label className="block text-base font-black text-yellow-300 mb-2">
-                📊 Statut *
+              <label className={labelBase}>
+                <Check className="w-3.5 h-3.5" />
+                Statut
               </label>
               <select
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-white font-black"
+                className={`${inputBase} appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23737373%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat pr-10`}
               >
-                <option value="actif">✅ Actif</option>
-                <option value="en_pause">⏸️ En pause</option>
-                <option value="inactif">❌ Inactif</option>
+                <option value="actif">Actif</option>
+                <option value="en_pause">En pause</option>
+                <option value="inactif">Inactif</option>
               </select>
             </div>
           </div>
 
           {/* Date d'entrée */}
           <div>
-            <label className="block text-base font-black text-orange-300 mb-2">
-              📅 Date d'entrée
+            <label className={labelBase}>
+              <Calendar className="w-3.5 h-3.5" />
+              Date d'entrée
             </label>
             <input
               type="date"
               name="dateEntree"
               value={formData.dateEntree}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-white font-bold"
+              className={inputBase}
             />
           </div>
 
           {/* Notes */}
           <div>
-            <label className="block text-base font-black text-teal-300 mb-2">
-              📝 Notes
+            <label className={labelBase}>
+              <FileText className="w-3.5 h-3.5" />
+              Notes d'accompagnement
             </label>
             <textarea
               name="notesAccompagnement"
@@ -204,28 +222,28 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
               onChange={handleChange}
               rows="3"
               maxLength="500"
-              placeholder="Informations pastorales..."
-              className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-white font-bold placeholder-slate-400"
+              placeholder="Informations pastorales ou administratives..."
+              className={`${inputBase} resize-none`}
             />
-            <p className="text-sm text-slate-400 mt-2 font-semibold">
-              {formData.notesAccompagnement.length} / 500 caractères
+            <p className="text-xs text-neutral-500 mt-2 text-right">
+              {formData.notesAccompagnement.length} / 500
             </p>
           </div>
 
           {/* Boutons */}
-          <div className="flex gap-4 pt-6 border-t-2 border-slate-700">
-            <button
-              type="submit"
-              className="flex-1 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white py-4 px-6 rounded-xl hover:from-green-500 hover:via-emerald-500 hover:to-teal-500 font-black text-xl transition-all shadow-2xl hover:shadow-green-500/50 active:scale-95"
-            >
-              {member ? '✅ Mettre à jour' : '➕ Créer'}
-            </button>
+          <div className="flex gap-3 pt-4 border-t border-neutral-800">
             <button
               type="button"
               onClick={onClose}
-              className="px-8 py-4 bg-slate-700 hover:bg-slate-600 border-2 border-slate-600 rounded-xl font-black text-white text-xl transition-all active:scale-95"
+              className="px-4 py-2 text-sm font-medium text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-md hover:text-neutral-200 hover:border-neutral-700 hover:bg-neutral-800 transition-colors"
             >
-              ❌ Annuler
+              Annuler
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 active:bg-indigo-800 transition-colors"
+            >
+              {member ? 'Enregistrer les modifications' : 'Créer le membre'}
             </button>
           </div>
         </form>
