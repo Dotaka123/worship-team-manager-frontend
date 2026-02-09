@@ -46,12 +46,14 @@ export const membersAPI = {
   toggleStatus: (id) => api.patch(`/members/${id}/toggle-status`)
 };
 
+// Cotisations
 export const cotisationsAPI = {
   generate: (mois) => api.post('/cotisations/generate', { mois }),
   getByMonth: (mois) => api.get(`/cotisations/month/${mois}`),
   getStats: (mois) => api.get(`/cotisations/stats/${mois}`),
   markAsPaid: (id, data) => api.patch(`/cotisations/${id}/pay`, data),
-  update: (id, data) => api.patch(`/cotisations/${id}`, data)
+  update: (id, data) => api.patch(`/cotisations/${id}`, data),
+  getMemberHistory: (memberId) => api.get(`/cotisations/member/${memberId}`)
 };
 
 // Attendance
@@ -66,14 +68,6 @@ export const notesAPI = {
   getByMember: (memberId) => api.get(`/notes/member/${memberId}`),
   create: (data) => api.post('/notes', data),
   delete: (id) => api.delete(`/notes/${id}`)
-};
-
-export const cotisationsAPI = {
-  getByMonth: (year, month) => API.get(`/cotisations/month?year=${year}&month=${month}`),
-  pay: (data) => API.post('/cotisations/pay', data),
-  cancel: (data) => API.post('/cotisations/cancel', data),
-  getStats: (year) => API.get(`/cotisations/stats?year=${year}`),
-  getMemberHistory: (memberId, year) => API.get(`/cotisations/member/${memberId}?year=${year}`)
 };
 
 export default api;
