@@ -206,6 +206,21 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
             </div>
           </div>
 
+          {/* Sexe */}
+<div>
+  <label className="block text-sm font-medium text-neutral-300 mb-1">
+    Sexe
+  </label>
+  <select
+    value={formData.gender || 'homme'}
+    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+    className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-neutral-200 focus:outline-none focus:border-indigo-500"
+  >
+    <option value="homme">Homme</option>
+    <option value="femme">Femme</option>
+  </select>
+</div>
+
           {/* Section Contact */}
           <div className="grid grid-cols-2 gap-4">
             <div>
