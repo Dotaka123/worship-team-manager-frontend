@@ -262,7 +262,7 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
                 value={formData.phone}
                 onChange={handleChange}
                 className={inputBase}
-                placeholder="06 12 34 56 78"
+                placeholder="0340000000"
               />
             </div>
           </div>
@@ -312,7 +312,7 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
               value={formData.residence}
               onChange={handleChange}
               className={inputBase}
-              placeholder="Paris, 75001"
+              placeholder="Anjomakely Ivato"
             />
           </div>
 
