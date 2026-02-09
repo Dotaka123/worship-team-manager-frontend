@@ -6,7 +6,6 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
   const [arrivalTimes, setArrivalTimes] = useState({});
   const [saving, setSaving] = useState({});
   const [activeInputs, setActiveInputs] = useState({});
-  // ✅ AJOUT : État pour mémoriser quel bouton a été cliqué
   const [pendingStatus, setPendingStatus] = useState({});
 
   if (!Array.isArray(members) || members.length === 0) {
@@ -38,21 +37,19 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
     return record?.arrivalTime || '';
   };
 
-  // ✅ CORRECTION : Mémoriser quel bouton a été cliqué
   const handleStatusClick = (memberId, newStatus) => {
-    // Stocker le statut choisi
     setPendingStatus(prev => ({
       ...prev,
       [memberId]: newStatus
     }));
 
-    // Si "Présent" sans heure, on enregistre direct
-    if (newStatus === 'present') {
+    // Présent ou Absent = enregistrement direct
+    if (newStatus === 'present' || newStatus === 'absent') {
       handleMark(memberId, newStatus);
       return;
     }
     
-    // Si on clique sur "En retard", on active le champ heure
+    // En retard = champ heure
     if (newStatus === 'en_retard') {
       setActiveInputs(prev => ({
         ...prev,
@@ -60,8 +57,8 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
       }));
     }
     
-    // Si on clique sur "Absent", on active le champ motif
-    if (newStatus === 'absent') {
+    // Excusé = champ motif
+    if (newStatus === 'excused') {
       setActiveInputs(prev => ({
         ...prev,
         [memberId]: 'reason'
@@ -73,12 +70,13 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
     const reason = reasons[memberId]?.trim();
     const arrivalTime = arrivalTimes[memberId]?.trim();
 
-    // Validations
-    if (status === 'absent' && !reason) {
+    // Validation excusé = motif obligatoire
+    if (status === 'excused' && !reason) {
       alert('Veuillez entrer un motif');
       return;
     }
 
+    // Validation retard = heure obligatoire
     if (status === 'en_retard' && !arrivalTime) {
       alert('Veuillez entrer l\'heure d\'arrivée');
       return;
@@ -90,11 +88,10 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
       await onMark({
         memberId,
         status,
-        reason: status === 'absent' ? reason : null,
+        reason: status === 'excused' ? reason : null,
         arrivalTime: (status === 'en_retard' || status === 'present') ? arrivalTime : null
       });
 
-      // ✅ Nettoyer après succès
       setActiveInputs(prev => {
         const newState = { ...prev };
         delete newState[memberId];
@@ -179,6 +176,7 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
 
                 <td className="py-4 px-4">
                   <div className="flex justify-center gap-2 flex-wrap">
+                    {/* Présent - Vert */}
                     <button
                       onClick={() => handleStatusClick(member._id, 'present')}
                       disabled={isLoading}
@@ -190,6 +188,8 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
                     >
                       ✓ Présent
                     </button>
+                    
+                    {/* En retard - Orange */}
                     <button
                       onClick={() => handleStatusClick(member._id, 'en_retard')}
                       disabled={isLoading}
@@ -199,8 +199,10 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
                           : 'bg-gray-700 text-gray-400 hover:bg-orange-600/20'
                       } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                      ⏰ En retard
+                      ⏰ Retard
                     </button>
+                    
+                    {/* Absent - Rouge (sans motif) */}
                     <button
                       onClick={() => handleStatusClick(member._id, 'absent')}
                       disabled={isLoading}
@@ -212,11 +214,24 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
                     >
                       ✗ Absent
                     </button>
+                    
+                    {/* Excusé - Violet (avec motif) */}
+                    <button
+                      onClick={() => handleStatusClick(member._id, 'excused')}
+                      disabled={isLoading}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap ${
+                        status === 'excused'
+                          ? 'bg-violet-600 text-white'
+                          : 'bg-gray-700 text-gray-400 hover:bg-violet-600/20'
+                      } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      📝 Excusé
+                    </button>
                   </div>
                 </td>
 
                 <td className="py-4 px-4">
-                  {/* Champ Motif - Absent */}
+                  {/* Champ Motif - Excusé */}
                   {activeInput === 'reason' ? (
                     <div className="flex gap-2">
                       <input
@@ -226,12 +241,12 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
                         onChange={(e) => handleReasonChange(member._id, e.target.value)}
                         disabled={isLoading}
                         autoFocus
-                        className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded text-sm text-white placeholder-gray-500 focus:ring-1 focus:ring-red-500 disabled:opacity-50"
+                        className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded text-sm text-white placeholder-gray-500 focus:ring-1 focus:ring-violet-500 disabled:opacity-50"
                       />
                       <button
-                        onClick={() => handleMark(member._id, 'absent')}
+                        onClick={() => handleMark(member._id, 'excused')}
                         disabled={isLoading || !reason}
-                        className="px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-white transition disabled:opacity-50 disabled:bg-gray-600"
+                        className="px-3 py-2 bg-violet-600 hover:bg-violet-700 rounded text-white transition disabled:opacity-50 disabled:bg-gray-600"
                         title="Confirmer"
                       >
                         <Save className="w-4 h-4" />
@@ -252,7 +267,6 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
                           className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded text-sm text-white disabled:opacity-50"
                         />
                       </div>
-                      {/* ✅ CORRECTION : Utiliser le statut mémorisé */}
                       <button
                         onClick={() => handleMark(member._id, pendingStatus[member._id] || 'en_retard')}
                         disabled={isLoading || !arrivalTime}
@@ -263,10 +277,10 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
                       </button>
                     </div>
                   )
-                  // État sauvegardé - Affichage
-                  : status === 'absent' ? (
+                  // Affichage - Excusé
+                  : status === 'excused' ? (
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-300">{reason || '-'}</span>
+                      <span className="text-sm text-violet-300">{reason || '-'}</span>
                       <button
                         onClick={() => setActiveInputs(prev => ({ ...prev, [member._id]: 'reason' }))}
                         className="text-xs text-gray-500 hover:text-gray-300 transition"
@@ -274,7 +288,13 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
                         Éditer
                       </button>
                     </div>
-                  ) : status === 'en_retard' || status === 'present' ? (
+                  )
+                  // Affichage - Absent (pas de motif)
+                  : status === 'absent' ? (
+                    <span className="text-sm text-red-400">Sans motif</span>
+                  )
+                  // Affichage - En retard ou Présent (heure)
+                  : status === 'en_retard' || status === 'present' ? (
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-300 flex items-center gap-1">
                         <Clock className="w-4 h-4" />
