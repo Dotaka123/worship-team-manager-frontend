@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { membersAPI } from '../services/api';
-import { Users, Mic2, Guitar, Zap, CheckCircle } from 'lucide-react';
+import { Users, Mic2, Guitar, Zap, CheckCircle, Wallet } from 'lucide-react';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -125,6 +125,13 @@ const Dashboard = () => {
           >
             Marquer les présences
           </Link>
+          <Link
+  to="/cotisations"
+  className="flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium text-sm"
+>
+  <Wallet className="w-4 h-4" />
+  Gérer les cotisations
+</Link>
         </div>
       </div>
     </div>
