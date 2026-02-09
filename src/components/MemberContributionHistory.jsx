@@ -18,12 +18,12 @@ const MemberContributionHistory = ({ member, onClose }) => {
 
   useEffect(() => {
     fetchHistory();
-  }, [member._id, selectedYear]);
+  }, [member._id]);
 
   const fetchHistory = async () => {
     setLoading(true);
     try {
-      const res = await contributionsAPI.getMemberHistory(member._id, selectedYear);
+      const res = await cotisationsAPI.getMemberHistory(member._id);
       setHistory(res.data);
     } catch (error) {
       console.error('❌ Error:', error);
@@ -32,19 +32,39 @@ const MemberContributionHistory = ({ member, onClose }) => {
     }
   };
 
+  // Parser le mois "2024-01" en { year: 2024, month: 1 }
+  const parseMonth = (mois) => {
+    if (!mois) return { year: 0, month: 0 };
+    const [year, month] = mois.split('-').map(Number);
+    return { year, month };
+  };
+
+  // Filtrer par année sélectionnée
+  const filteredHistory = history.filter(h => {
+    const { year } = parseMonth(h.mois);
+    return year === selectedYear;
+  });
+
   // Créer une vue calendrier pour l'année
   const getMonthStatus = (monthNum) => {
-    const record = history.find(h => h.month === monthNum && h.year === selectedYear);
-    return record?.isPaid ? 'paid' : 'unpaid';
+    const record = history.find(h => {
+      const { year, month } = parseMonth(h.mois);
+      return month === monthNum && year === selectedYear;
+    });
+    return record?.statut === 'paye' ? 'paid' : 'unpaid';
   };
 
   const getMonthRecord = (monthNum) => {
-    return history.find(h => h.month === monthNum && h.year === selectedYear);
+    return history.find(h => {
+      const { year, month } = parseMonth(h.mois);
+      return month === monthNum && year === selectedYear;
+    });
   };
 
-  const totalPaid = history.filter(h => h.isPaid && h.year === selectedYear).length;
-  const totalAmount = history.filter(h => h.isPaid && h.year === selectedYear)
-    .reduce((sum, h) => sum + h.amount, 0);
+  const totalPaid = filteredHistory.filter(h => h.statut === 'paye').length;
+  const totalAmount = filteredHistory
+    .filter(h => h.statut === 'paye')
+    .reduce((sum, h) => sum + (h.montant || 3000), 0);
 
   const handleDownloadHistory = () => {
     generateMemberHistory(member, history);
@@ -52,12 +72,12 @@ const MemberContributionHistory = ({ member, onClose }) => {
 
   const handleDownloadReceipt = (monthNum) => {
     const record = getMonthRecord(monthNum);
-    if (record && record.isPaid) {
+    if (record && record.statut === 'paye') {
       generateReceipt({
         member,
         year: selectedYear,
         month: monthNum,
-        amount: record.amount,
+        amount: record.montant || 3000,
         paidAt: record.paidAt,
         paymentMethod: record.paymentMethod
       });
@@ -201,38 +221,47 @@ const MemberContributionHistory = ({ member, onClose }) => {
               Détail des paiements
             </h3>
             <div className="space-y-2">
-              {history
-                .filter(h => h.year === selectedYear && h.isPaid)
-                .sort((a, b) => b.month - a.month)
-                .map(record => (
-                  <div
-                    key={`${record.year}-${record.month}`}
-                    className="flex items-center justify-between bg-gray-800 rounded-lg p-3"
-                  >
-                    <div>
-                      <p className="text-sm text-white">
-                        {MONTHS[record.month - 1]} {record.year}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Payé le {new Date(record.paidAt).toLocaleDateString('fr-FR')}
-                      </p>
+              {filteredHistory
+                .filter(h => h.statut === 'paye')
+                .sort((a, b) => {
+                  const { month: monthA } = parseMonth(a.mois);
+                  const { month: monthB } = parseMonth(b.mois);
+                  return monthB - monthA;
+                })
+                .map(record => {
+                  const { month } = parseMonth(record.mois);
+                  return (
+                    <div
+                      key={record._id}
+                      className="flex items-center justify-between bg-gray-800 rounded-lg p-3"
+                    >
+                      <div>
+                        <p className="text-sm text-white">
+                          {MONTHS[month - 1]} {selectedYear}
+                        </p>
+                        {record.paidAt && (
+                          <p className="text-xs text-gray-500">
+                            Payé le {new Date(record.paidAt).toLocaleDateString('fr-FR')}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-green-500 font-medium">
+                          {(record.montant || 3000).toLocaleString()} Ar
+                        </span>
+                        <button
+                          onClick={() => handleDownloadReceipt(month)}
+                          className="p-1.5 bg-gray-700 hover:bg-gray-600 rounded transition"
+                          title="Télécharger le reçu"
+                        >
+                          <Download className="w-4 h-4 text-gray-300" />
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-green-500 font-medium">
-                        {record.amount.toLocaleString()} Ar
-                      </span>
-                      <button
-                        onClick={() => handleDownloadReceipt(record.month)}
-                        className="p-1.5 bg-gray-700 hover:bg-gray-600 rounded transition"
-                        title="Télécharger le reçu"
-                      >
-                        <Download className="w-4 h-4 text-gray-300" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               
-              {history.filter(h => h.year === selectedYear && h.isPaid).length === 0 && (
+              {filteredHistory.filter(h => h.statut === 'paye').length === 0 && (
                 <p className="text-center text-gray-500 py-4">
                   Aucun paiement enregistré pour {selectedYear}
                 </p>
