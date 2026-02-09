@@ -1,93 +1,255 @@
-import { Mail, Phone, Music, Users } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, User, Mail, Phone, Music, Mic2, Users, Calendar, FileText, Check } from 'lucide-react';
 
-const MemberCard = ({ member, onEdit, onDelete }) => {
-  const statusStyles = {
-    actif: 'bg-gradient-to-r from-green-500 to-emerald-600 text-white',
-    inactif: 'bg-gradient-to-r from-gray-600 to-gray-700 text-white',
-    en_pause: 'bg-gradient-to-r from-orange-500 to-amber-600 text-white'
+const MemberForm = ({ member, onSubmit, onClose }) => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    role: '',
+    instrument: '',
+    groupe: '',
+    status: 'actif',
+    dateEntree: new Date().toISOString().split('T')[0],
+    notesAccompagnement: ''
+  });
+
+  useEffect(() => {
+    if (member) {
+      setFormData({
+        ...member,
+        dateEntree: member.dateEntree ? new Date(member.dateEntree).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+      });
+    }
+  }, [member]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const statusLabels = {
-    actif: '✅ Actif',
-    inactif: '❌ Inactif',
-    en_pause: '⏸️ En pause'
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit(formData);
   };
+
+  // Couleur d'accent unique : indigo
+  const inputBase = "w-full px-3 py-2.5 bg-neutral-900 border border-neutral-800 rounded-md text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30 transition-colors";
+  const labelBase = "flex items-center gap-2 text-xs font-medium text-neutral-500 uppercase tracking-wider mb-2";
 
   return (
-    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl shadow-2xl hover:shadow-blue-500/50 transition-all p-6 border-2 border-slate-700 hover:border-blue-500">
-      {/* En-tête */}
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h3 className="text-2xl font-bold text-white mb-2">
-            {member.firstName} {member.lastName}
-          </h3>
-          <span className={`inline-block px-4 py-2 rounded-lg text-sm font-bold shadow-lg ${statusStyles[member.status]}`}>
-            {statusLabels[member.status]}
-          </span>
-        </div>
-      </div>
-
-      {/* Informations */}
-      <div className="space-y-3 mb-4 bg-slate-900/50 rounded-lg p-4">
-        {member.role && (
-          <div className="flex items-center text-blue-300">
-            <Users className="w-5 h-5 mr-3 text-blue-400" />
-            <span className="text-base font-bold">{member.role}</span>
-          </div>
-        )}
+    <div className="fixed inset-0 bg-neutral-950/90 flex items-center justify-center p-4 z-50">
+      <div className="bg-neutral-900 border border-neutral-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
         
-        {member.instrument && (
-          <div className="flex items-center text-purple-300">
-            <Music className="w-5 h-5 mr-3 text-purple-400" />
-            <span className="text-base font-bold">{member.instrument}</span>
-          </div>
-        )}
-
-        {member.email && (
-          <div className="flex items-center text-cyan-300">
-            <Mail className="w-5 h-5 mr-3 text-cyan-400" />
-            <a href={`mailto:${member.email}`} className="text-sm hover:text-cyan-100 font-semibold hover:underline">
-              {member.email}
-            </a>
-          </div>
-        )}
-
-        {member.phone && (
-          <div className="flex items-center text-green-300">
-            <Phone className="w-5 h-5 mr-3 text-green-400" />
-            <a href={`tel:${member.phone}`} className="text-sm hover:text-green-100 font-semibold hover:underline">
-              {member.phone}
-            </a>
-          </div>
-        )}
-      </div>
-
-      {/* Groupe */}
-      {member.groupe && (
-        <div className="mb-4">
-          <span className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg">
-            🎵 {member.groupe}
-          </span>
+        {/* En-tête */}
+        <div className="flex justify-between items-center px-6 py-4 border-b border-neutral-800 sticky top-0 bg-neutral-900">
+          <h2 className="text-base font-semibold text-neutral-100 tracking-tight">
+            {member ? 'Modifier le membre' : 'Nouveau membre'}
+          </h2>
+          <button 
+            onClick={onClose} 
+            className="text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 rounded-md p-1.5 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
-      )}
 
-      {/* Actions */}
-      <div className="flex gap-3 pt-4 border-t-2 border-slate-700">
-        <button
-          onClick={() => onEdit(member)}
-          className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg hover:from-blue-500 hover:to-blue-600 active:scale-95 transition-all text-base font-bold shadow-lg"
-        >
-          ✏️ Modifier
-        </button>
-        <button
-          onClick={() => onDelete(member._id)}
-          className="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-4 rounded-lg hover:from-red-500 hover:to-red-600 active:scale-95 transition-all text-base font-bold shadow-lg"
-        >
-          🗑️ Supprimer
-        </button>
+        {/* Formulaire */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          
+          {/* Section Identité */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelBase}>
+                <User className="w-3.5 h-3.5" />
+                Prénom
+              </label>
+              <input
+                type="text"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+                className={inputBase}
+                placeholder="Jean"
+              />
+            </div>
+            
+            <div>
+              <label className={labelBase}>
+                <User className="w-3.5 h-3.5" />
+                Nom
+              </label>
+              <input
+                type="text"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+                className={inputBase}
+                placeholder="Dupont"
+              />
+            </div>
+          </div>
+
+          {/* Section Contact */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelBase}>
+                <Mail className="w-3.5 h-3.5" />
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className={inputBase}
+                placeholder="jean@email.com"
+              />
+            </div>
+            
+            <div>
+              <label className={labelBase}>
+                <Phone className="w-3.5 h-3.5" />
+                Téléphone
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className={inputBase}
+                placeholder="06 12 34 56 78"
+              />
+            </div>
+          </div>
+
+          {/* Section Rôle et instrument */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelBase}>
+                <Mic2 className="w-3.5 h-3.5" />
+                Rôle
+              </label>
+              <input
+                type="text"
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                placeholder="Chanteur, Chef d'orchestre..."
+                className={inputBase}
+              />
+            </div>
+            
+            <div>
+              <label className={labelBase}>
+                <Music className="w-3.5 h-3.5" />
+                Instrument
+              </label>
+              <input
+                type="text"
+                name="instrument"
+                value={formData.instrument}
+                onChange={handleChange}
+                placeholder="Guitare, Piano..."
+                className={inputBase}
+              />
+            </div>
+          </div>
+
+          {/* Section Groupe et statut */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelBase}>
+                <Users className="w-3.5 h-3.5" />
+                Groupe
+              </label>
+              <input
+                type="text"
+                name="groupe"
+                value={formData.groupe}
+                onChange={handleChange}
+                placeholder="Louange principale..."
+                className={inputBase}
+              />
+            </div>
+            
+            <div>
+              <label className={labelBase}>
+                <Check className="w-3.5 h-3.5" />
+                Statut
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                required
+                className={`${inputBase} appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23737373%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat pr-10`}
+              >
+                <option value="actif">Actif</option>
+                <option value="en_pause">En pause</option>
+                <option value="inactif">Inactif</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Date d'entrée */}
+          <div>
+            <label className={labelBase}>
+              <Calendar className="w-3.5 h-3.5" />
+              Date d'entrée
+            </label>
+            <input
+              type="date"
+              name="dateEntree"
+              value={formData.dateEntree}
+              onChange={handleChange}
+              className={inputBase}
+            />
+          </div>
+
+          {/* Notes */}
+          <div>
+            <label className={labelBase}>
+              <FileText className="w-3.5 h-3.5" />
+              Notes d'accompagnement
+            </label>
+            <textarea
+              name="notesAccompagnement"
+              value={formData.notesAccompagnement}
+              onChange={handleChange}
+              rows="3"
+              maxLength="500"
+              placeholder="Informations pastorales ou administratives..."
+              className={`${inputBase} resize-none`}
+            />
+            <p className="text-xs text-neutral-500 mt-2 text-right">
+              {formData.notesAccompagnement.length} / 500
+            </p>
+          </div>
+
+          {/* Boutons */}
+          <div className="flex gap-3 pt-4 border-t border-neutral-800">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-medium text-neutral-400 bg-neutral-900 border border-neutral-800 rounded-md hover:text-neutral-200 hover:border-neutral-700 hover:bg-neutral-800 transition-colors"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 active:bg-indigo-800 transition-colors"
+            >
+              {member ? 'Enregistrer les modifications' : 'Créer le membre'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
 };
 
-export default MemberCard;
+export default MemberForm;
