@@ -1,180 +1,411 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { membersAPI, notesAPI, attendanceAPI } from '../services/api';
+import { ArrowLeft, User, Calendar, Phone, Mail, MapPin, Camera, Loader2, Gift, CheckCircle, XCircle, Music, Pencil, Cake } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
+import api from '../services/api';
 import MemberForm from '../components/MemberForm';
 
 const MemberDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [member, setMember] = useState(null);
-  const [notes, setNotes] = useState([]);
-  const [attendance, setAttendance] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [cotisations, setCotisations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [newNote, setNewNote] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [memberRes, notesRes, attendanceRes] = await Promise.all([
-          membersAPI.getOne(id),
-          notesAPI.getByMember(id),
-          attendanceAPI.getMemberHistory(id)
-        ]);
-        setMember(memberRes.data);
-        setNotes(notesRes.data);
-        setAttendance(attendanceRes.data);
-      } catch (error) {
-        console.error('Erreur:', error);
-      }
-    };
-    fetchData();
+    fetchMember();
   }, [id]);
+
+  const fetchMember = async () => {
+    try {
+      setLoading(true);
+      const { data } = await api.get(`/members/${id}`);
+      setMember(data.member);
+      setStats(data.stats);
+      setCotisations(data.cotisations || []);
+    } catch (error) {
+      console.error('Erreur:', error);
+      navigate('/members');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleUpdate = async (formData) => {
     try {
-      const { data } = await membersAPI.update(id, formData);
-      setMember(data);
+      await api.put(`/members/${id}`, formData);
+      await fetchMember();
       setEditing(false);
     } catch (error) {
       alert(error.response?.data?.message || 'Erreur');
     }
   };
 
-  const handleToggleStatus = async () => {
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('photo', file);
+
     try {
-      const { data } = await membersAPI.toggleStatus(id);
-      setMember(data);
+      setUploading(true);
+      await api.post(`/members/${id}/photo`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      await fetchMember();
     } catch (error) {
-      alert('Erreur');
+      console.error('Erreur upload:', error);
+      alert('Erreur lors de l\'upload');
+    } finally {
+      setUploading(false);
     }
   };
 
-  const handleAddNote = async () => {
-    if (!newNote.trim()) return;
-    try {
-      const { data } = await notesAPI.create({ memberId: id, content: newNote });
-      setNotes([data, ...notes]);
-      setNewNote('');
-    } catch (error) {
-      alert('Erreur');
-    }
+  const formatDate = (date) => {
+    if (!date) return '-';
+    return new Date(date).toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
   };
 
-  const handleDeleteNote = async (noteId) => {
-    try {
-      await notesAPI.delete(noteId);
-      setNotes(notes.filter(n => n._id !== noteId));
-    } catch (error) {
-      alert('Erreur');
+  const getRoleLabel = () => {
+    const baseRole = member?.role || 'Musicien';
+    if (member?.gender === 'femme') {
+      const femaleVersions = {
+        'Chanteur': 'Chanteuse',
+        'Musicien': 'Musicienne',
+        'Technicien': 'Technicienne'
+      };
+      return femaleVersions[baseRole] || baseRole;
     }
+    return baseRole;
   };
 
-  if (!member) {
-    return <p className="text-gray-400">Chargement...</p>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
+      </div>
+    );
   }
 
+  if (!member) return null;
+
+  // Données pour les charts
+  const pieData = [
+    { name: 'Payé', value: stats?.cotisationsPaye || 0, color: '#10b981' },
+    { name: 'Non payé', value: stats?.cotisationsNonPaye || 0, color: '#ef4444' },
+  ];
+
+  const chartData = stats?.cotisationsChart?.map(c => ({
+    mois: c.mois.split('-')[1] + '/' + c.mois.split('-')[0].slice(2),
+    montant: c.statut === 'paye' ? c.montant : 0,
+  })).reverse() || [];
+
+  // Style selon le genre
+  const genderStyle = member.gender === 'femme' 
+    ? { ring: 'ring-pink-500/50', bg: 'bg-pink-500/10', text: 'text-pink-400' }
+    : { ring: 'ring-blue-500/50', bg: 'bg-blue-500/10', text: 'text-blue-400' };
+
   return (
-    <div>
-      {/* Header */}
-      <button onClick={() => navigate('/members')} className="text-gray-400 hover:text-white mb-4">
-        ← Retour aux membres
-      </button>
+    <div className="min-h-screen bg-neutral-950">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        
+        {/* Header */}
+        <button
+          onClick={() => navigate('/members')}
+          className="flex items-center gap-2 text-neutral-400 hover:text-neutral-200 mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span className="text-sm">Retour aux membres</span>
+        </button>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Infos membre */}
-        <div className="lg:col-span-2">
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            {editing ? (
-              <MemberForm member={member} onSubmit={handleUpdate} onCancel={() => setEditing(false)} />
-            ) : (
-              <>
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h1 className="text-2xl font-bold">{member.name}</h1>
-                    <p className="text-gray-400 capitalize">{member.role} {member.instrument && `• ${member.instrument}`}</p>
-                    {member.group && <p className="text-sm text-gray-500">{member.group}</p>}
-                  </div>
-                  <span className={`px-3 py-1 rounded-full text-sm ${member.isActive ? 'bg-green-600' : 'bg-gray-600'}`}>
-                    {member.isActive ? 'Actif' : 'Inactif'}
-                  </span>
-                </div>
-                
-                {(member.phone || member.email) && (
-                  <div className="text-sm text-gray-400 mb-4">
-                    {member.phone && <p>📞 {member.phone}</p>}
-                    {member.email && <p>✉️ {member.email}</p>}
-                  </div>
-                )}
-
-                <div className="flex gap-3">
-                  <button onClick={() => setEditing(true)} className="px-4 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg transition">
-                    Modifier
-                  </button>
-                  <button onClick={handleToggleStatus} className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition">
-                    {member.isActive ? 'Désactiver' : 'Réactiver'}
-                  </button>
-                </div>
-              </>
-            )}
+        {editing ? (
+          <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">
+            <MemberForm 
+              member={member} 
+              onSubmit={handleUpdate} 
+              onClose={() => setEditing(false)} 
+            />
           </div>
+        ) : (
+          <>
+            {/* Profil principal */}
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 mb-6">
+              <div className="flex flex-col md:flex-row gap-6">
+                
+                {/* Photo */}
+                <div className="relative group shrink-0 mx-auto md:mx-0">
+                  {member.photo ? (
+                    <img
+                      src={member.photo}
+                      alt={member.firstName}
+                      className={`w-32 h-32 rounded-full object-cover ring-4 ${genderStyle.ring}`}
+                    />
+                  ) : (
+                    <div className={`w-32 h-32 rounded-full ${genderStyle.bg} ring-4 ${genderStyle.ring} flex items-center justify-center`}>
+                      <User className={`w-12 h-12 ${genderStyle.text}`} />
+                    </div>
+                  )}
+                  
+                  {/* Upload overlay */}
+                  <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                    />
+                    {uploading ? (
+                      <Loader2 className="w-6 h-6 animate-spin text-white" />
+                    ) : (
+                      <Camera className="w-6 h-6 text-white" />
+                    )}
+                  </label>
 
-          {/* Notes */}
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 mt-6">
-            <h2 className="text-lg font-semibold mb-4">Notes</h2>
-            
-            <div className="flex gap-2 mb-4">
-              <input
-                type="text"
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                placeholder="Ajouter une note..."
-                className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg"
-              />
-              <button onClick={handleAddNote} className="px-4 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg transition">
-                Ajouter
-              </button>
-            </div>
+                  {/* Status indicator */}
+                  <span className={`absolute bottom-2 right-2 w-4 h-4 rounded-full border-2 border-neutral-900 ${
+                    member.status === 'actif' ? 'bg-emerald-500' :
+                    member.status === 'en_pause' ? 'bg-amber-500' : 'bg-red-500'
+                  }`} />
+                </div>
 
-            <div className="space-y-3">
-              {notes.length === 0 ? (
-                <p className="text-gray-500 text-sm">Aucune note</p>
-              ) : (
-                notes.map((note) => (
-                  <div key={note._id} className="p-3 bg-gray-700/50 rounded-lg flex justify-between items-start">
+                {/* Info */}
+                <div className="flex-1 text-center md:text-left">
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                     <div>
-                      <p className="text-sm">{note.content}</p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {new Date(note.createdAt).toLocaleDateString('fr-FR')}
+                      <h1 className="text-2xl font-bold text-white mb-1">
+                        {member.firstName} {member.lastName}
+                      </h1>
+                      <p className={`font-medium mb-4 ${genderStyle.text}`}>
+                        {getRoleLabel()} {member.instrument && `• ${member.instrument}`}
                       </p>
                     </div>
-                    <button onClick={() => handleDeleteNote(note._id)} className="text-gray-500 hover:text-red-400">
-                      ✕
+                    
+                    <button
+                      onClick={() => setEditing(true)}
+                      className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+                    >
+                      <Pencil className="w-4 h-4" />
+                      Modifier
                     </button>
                   </div>
-                ))
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    {member.phone && (
+                      <a href={`tel:${member.phone}`} className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors">
+                        <Phone className="w-4 h-4" />
+                        <span>{member.phone}</span>
+                      </a>
+                    )}
+                    {member.email && (
+                      <a href={`mailto:${member.email}`} className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors">
+                        <Mail className="w-4 h-4" />
+                        <span className="truncate">{member.email}</span>
+                      </a>
+                    )}
+                    {member.residence && (
+                      <div className="flex items-center gap-2 text-neutral-400">
+                        <MapPin className="w-4 h-4" />
+                        <span>{member.residence}</span>
+                      </div>
+                    )}
+                    {member.dateOfBirth && (
+                      <div className="flex items-center gap-2 text-neutral-400">
+                        <Cake className="w-4 h-4" />
+                        <span>{formatDate(member.dateOfBirth)} ({member.age} ans)</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mt-4 justify-center md:justify-start">
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      member.status === 'actif' ? 'bg-emerald-500/20 text-emerald-400' :
+                      member.status === 'en_pause' ? 'bg-amber-500/20 text-amber-400' :
+                      'bg-red-500/20 text-red-400'
+                    }`}>
+                      {member.status === 'actif' ? 'Actif' : member.status === 'en_pause' ? 'En pause' : 'Inactif'}
+                    </span>
+                    {member.dateEntree && (
+                      <span className="px-3 py-1 rounded-full text-sm bg-neutral-800 text-neutral-400">
+                        Membre depuis {formatDate(member.dateEntree)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              {/* Anniversaire */}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-pink-500/10 rounded-lg">
+                    <Gift className="w-5 h-5 text-pink-400" />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold text-white">
+                  {stats?.joursAvantAnniversaire !== null ? stats.joursAvantAnniversaire : '-'}
+                </p>
+                <p className="text-sm text-neutral-500">
+                  {stats?.joursAvantAnniversaire === 0 ? "C'est aujourd'hui ! 🎉" : 
+                   stats?.joursAvantAnniversaire === 1 ? "jour avant anniv" : "jours avant anniv"}
+                </p>
+              </div>
+
+              {/* Cotisations payées */}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-emerald-500/10 rounded-lg">
+                    <CheckCircle className="w-5 h-5 text-emerald-400" />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold text-emerald-400">{stats?.cotisationsPaye || 0}</p>
+                <p className="text-sm text-neutral-500">cotisations payées</p>
+              </div>
+
+              {/* Cotisations non payées */}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-red-500/10 rounded-lg">
+                    <XCircle className="w-5 h-5 text-red-400" />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold text-red-400">{stats?.cotisationsNonPaye || 0}</p>
+                <p className="text-sm text-neutral-500">impayées</p>
+              </div>
+
+              {/* Total */}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-indigo-500/10 rounded-lg">
+                    <Music className="w-5 h-5 text-indigo-400" />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold text-white">{stats?.totalCotisations || 0}</p>
+                <p className="text-sm text-neutral-500">total cotisations</p>
+              </div>
+            </div>
+
+            {/* Charts */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {/* Pie Chart */}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Répartition</h3>
+                {(stats?.totalCotisations || 0) > 0 ? (
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={80}
+                        dataKey="value"
+                        label={({ name, value }) => `${name}: ${value}`}
+                        labelLine={false}
+                      >
+                        {pieData.map((entry, index) => (
+                          <Cell key={index} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: '#171717', border: '1px solid #333', borderRadius: '8px' }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[200px] flex items-center justify-center text-neutral-500">
+                    Aucune donnée
+                  </div>
+                )}
+              </div>
+
+              {/* Bar Chart */}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-white mb-4">6 derniers mois</h3>
+                {chartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={200}>
+                    <BarChart data={chartData}>
+                      <XAxis dataKey="mois" stroke="#666" fontSize={12} />
+                      <YAxis stroke="#666" fontSize={12} />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: '#171717', border: '1px solid #333', borderRadius: '8px' }}
+                        formatter={(value) => [`${value.toLocaleString()} Ar`, 'Payé']}
+                      />
+                      <Bar dataKey="montant" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[200px] flex items-center justify-center text-neutral-500">
+                    Aucune donnée
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Historique cotisations */}
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
+              <div className="px-6 py-4 border-b border-neutral-800">
+                <h3 className="text-lg font-semibold text-white">Historique des cotisations</h3>
+              </div>
+              
+              {cotisations.length === 0 ? (
+                <div className="p-8 text-center text-neutral-500">
+                  Aucune cotisation enregistrée
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-neutral-800/50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Mois</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Montant</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Statut</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-neutral-400 uppercase">Date paiement</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-800">
+                      {cotisations.map((c) => (
+                        <tr key={c._id} className="hover:bg-neutral-800/30">
+                          <td className="px-6 py-4 text-white font-medium">{c.mois}</td>
+                          <td className="px-6 py-4 text-neutral-300">{c.montant?.toLocaleString()} Ar</td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              c.statut === 'paye' 
+                                ? 'bg-emerald-500/20 text-emerald-400' 
+                                : 'bg-red-500/20 text-red-400'
+                            }`}>
+                              {c.statut === 'paye' ? 'Payé' : 'Non payé'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-neutral-400">
+                            {c.paidAt ? new Date(c.paidAt).toLocaleDateString('fr-FR') : '-'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
-          </div>
-        </div>
 
-        {/* Historique présences */}
-        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-          <h2 className="text-lg font-semibold mb-4">Historique présences</h2>
-          <div className="space-y-2">
-            {attendance.length === 0 ? (
-              <p className="text-gray-500 text-sm">Aucun historique</p>
-            ) : (
-              attendance.map((record) => (
-                <div key={record._id} className="flex items-center justify-between py-2 border-b border-gray-700">
-                  <span className="text-sm">{new Date(record.date).toLocaleDateString('fr-FR')}</span>
-                  <span className={`text-sm ${record.status === 'present' ? 'text-green-400' : 'text-red-400'}`}>
-                    {record.status === 'present' ? 'Présent' : 'Absent'}
-                  </span>
-                </div>
-              ))
+            {/* Notes (si tu veux les garder) */}
+            {member.notesAccompagnement && (
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 mt-6">
+                <h3 className="text-lg font-semibold text-white mb-3">Notes</h3>
+                <p className="text-neutral-400">{member.notesAccompagnement}</p>
+              </div>
             )}
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </div>
   );
