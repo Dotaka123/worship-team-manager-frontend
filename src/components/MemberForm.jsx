@@ -49,7 +49,6 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
       [name]: value
     }));
     
-    // Effacer l'erreur du champ
     if (errors[name]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -58,7 +57,6 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
       });
     }
 
-    // Calculer l'âge si date de naissance changée
     if (name === 'dateOfBirth' && value) {
       const age = calculateAge(value);
       setFormData(prev => ({
@@ -82,6 +80,7 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
   };
 
   const handleRoleChange = (newRole) => {
+    console.log('📝 Role sélectionné:', newRole);
     setFormData(prev => ({ 
       ...prev, 
       role: newRole,
@@ -115,7 +114,9 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
       return;
     }
 
-    // Préparer les données à envoyer
+    console.log('📝 Formulaire data:', formData);
+    console.log('🔍 Role envoyé:', formData.role);
+
     const dataToSubmit = {
       ...formData,
       email: formData.email || null,
@@ -126,11 +127,9 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
       notesAccompagnement: formData.notesAccompagnement || null
     };
 
-    onSubmit(dataToSubmit);
-  };
+    console.log('📤 Data finale à envoyer:', dataToSubmit);
 
-  const getNormalizedRole = (role) => {
-    return role.toLowerCase().replace('(euse)', '').trim();
+    onSubmit(dataToSubmit);
   };
 
   const instrumentsByRole = {
@@ -296,13 +295,13 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
               Rôle
             </label>
             <div className="flex gap-3">
-              {['Chanteur(euse)', 'Musicien', 'Technicien'].map((role) => (
+              {['Chanteur', 'Musicien', 'Technicien'].map((role) => (
                 <button
                   key={role}
                   type="button"
                   onClick={() => handleRoleChange(role)}
                   className={`${buttonBase} ${
-                    getNormalizedRole(formData.role) === getNormalizedRole(role) 
+                    formData.role === role 
                       ? buttonActive 
                       : buttonInactive
                   }`}
@@ -318,11 +317,11 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
             <div>
               <label className={labelBase}>
                 <Music className="w-3.5 h-3.5" />
-                {getNormalizedRole(formData.role) === 'chanteur' ? 'Voix' : 
-                 getNormalizedRole(formData.role) === 'musicien' ? 'Instrument' : 'Équipement'}
+                {formData.role === 'Chanteur' ? 'Voix' : 
+                 formData.role === 'Musicien' ? 'Instrument' : 'Équipement'}
               </label>
               <div className="flex flex-wrap gap-2">
-                {instrumentsByRole[getNormalizedRole(formData.role)]?.map((instrument) => (
+                {instrumentsByRole[formData.role.toLowerCase()]?.map((instrument) => (
                   <button
                     key={instrument}
                     type="button"
