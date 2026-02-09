@@ -37,13 +37,14 @@ const Attendance = () => {
     fetchData();
   }, [selectedDate]);
 
-  const handleMark = async ({ memberId, status, reason }) => {
+  const handleMark = async ({ memberId, status, reason, arrivalTime }) => {
     try {
       const { data } = await attendanceAPI.mark({
         memberId,
         date: selectedDate,
         status,
-        reason
+        reason,
+        arrivalTime
       });
 
       setAttendance(prev => {
