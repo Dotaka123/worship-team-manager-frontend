@@ -136,6 +136,13 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
     onSubmit(dataToSubmit);
   };
 
+  // ✅ 1. Définir les rôles avec des labels dynamiques
+  const rolesConfig = [
+    { value: 'Chanteur', label: { homme: 'Chanteur', femme: 'Chanteuse' } },
+    { value: 'Musicien', label: { homme: 'Musicien', femme: 'Musicienne' } },
+    { value: 'Technicien', label: { homme: 'Technicien', femme: 'Technicienne' } }
+  ];
+
   const instrumentsByRole = {
     chanteur: ['1ère voix', '2ème voix', '3ème voix'],
     musicien: ['Clavier', 'Batterie', 'Basse', 'Solo', 'Sax'],
@@ -309,25 +316,26 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
             />
           </div>
 
-          {/* Section Rôle - BOUTONS */}
+          {/* ✅ 2. MODIFIER LA SECTION RÔLE */}
           <div>
             <label className={labelBase}>
               <Mic2 className="w-3.5 h-3.5" />
               Rôle
             </label>
             <div className="flex gap-3">
-              {['Chanteur', 'Musicien', 'Technicien'].map((role) => (
+              {rolesConfig.map((roleConfig) => (
                 <button
-                  key={role}
+                  key={roleConfig.value}
                   type="button"
-                  onClick={() => handleRoleChange(role)}
+                  onClick={() => handleRoleChange(roleConfig.value)}
                   className={`${buttonBase} ${
-                    formData.role === role 
+                    formData.role === roleConfig.value 
                       ? buttonActive 
                       : buttonInactive
                   }`}
                 >
-                  {role}
+                  {/* On affiche le bon label en fonction du sexe */}
+                  {roleConfig.label[formData.gender]}
                 </button>
               ))}
             </div>
