@@ -33,7 +33,7 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
     setFormData({ 
       ...formData, 
       role: newRole,
-      instrument: '' // Réinitialise l'instrument quand le rôle change
+      instrument: ''
     });
   };
 
@@ -46,11 +46,16 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
     onSubmit(formData);
   };
 
-  // Options d'instruments par rôle
+  // Options d'instruments par rôle (clés normalisées)
   const instrumentsByRole = {
     chanteur: ['1ère voix', '2ème voix', '3ème voix'],
     musicien: ['Clavier', 'Batterie', 'Basse', 'Solo', 'Sax'],
     technicien: ['Écran', 'Table mixeur']
+  };
+
+  // ← Normalise le rôle pour la comparaison
+  const getNormalizedRole = (role) => {
+    return role.toLowerCase().replace('(euse)', '').trim();
   };
 
   const buttonBase = "px-4 py-2 rounded-lg text-sm font-medium transition-all border";
@@ -160,9 +165,11 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
                 <button
                   key={role}
                   type="button"
-                  onClick={() => handleRoleChange(role.toLowerCase())}
+                  onClick={() => handleRoleChange(role)}
                   className={`${buttonBase} ${
-                    formData.role === role.toLowerCase() ? buttonActive : buttonInactive
+                    getNormalizedRole(formData.role) === getNormalizedRole(role) 
+                      ? buttonActive 
+                      : buttonInactive
                   }`}
                 >
                   {role}
@@ -176,11 +183,11 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
             <div>
               <label className={labelBase}>
                 <Music className="w-3.5 h-3.5" />
-                {formData.role === 'chanteur(euse)' || formData.role === 'chanteur' ? 'Voix' : 
-                 formData.role === 'musicien' ? 'Instrument' : 'Équipement'}
+                {getNormalizedRole(formData.role) === 'chanteur' ? 'Voix' : 
+                 getNormalizedRole(formData.role) === 'musicien' ? 'Instrument' : 'Équipement'}
               </label>
               <div className="flex flex-wrap gap-2">
-                {instrumentsByRole[formData.role.toLowerCase()]?.map((instrument) => (
+                {instrumentsByRole[getNormalizedRole(formData.role)]?.map((instrument) => (
                   <button
                     key={instrument}
                     type="button"
