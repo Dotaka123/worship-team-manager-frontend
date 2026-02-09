@@ -11,7 +11,7 @@ import {
   History,
   FileText
 } from 'lucide-react';
-import { contributionsAPI } from '../services/api';
+import { cotisationsAPI } from '../services/api';
 import { generateMonthlyReport, generateReceipt } from '../services/pdfService';
 import MemberContributionHistory from '../components/MemberContributionHistory';
 
