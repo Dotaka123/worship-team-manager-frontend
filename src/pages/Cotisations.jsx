@@ -10,7 +10,7 @@ import {
   Clock,
   Plus
 } from 'lucide-react';
-import api from '../api';
+import api from '../services/api';
 
 const MONTHS = [
   'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
