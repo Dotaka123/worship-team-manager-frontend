@@ -1,399 +1,274 @@
 import { useState, useEffect } from 'react';
 import { 
+  Calendar, 
   ChevronLeft, 
   ChevronRight, 
   Check, 
   X, 
-  Wallet,
-  TrendingUp,
-  AlertCircle,
-  Download,
-  History,
-  FileText
+  DollarSign,
+  Users,
+  Clock,
+  Plus
 } from 'lucide-react';
-import { cotisationsAPI } from '../services/api';
-import { generateMonthlyReport, generateReceipt } from '../services/pdfService';
-import MemberContributionHistory from '../components/MemberContributionHistory';
+import api from '../api';
 
 const MONTHS = [
   'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
   'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
 ];
 
-const AMOUNT = 3000;
-
 const Cotisations = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [contributions, setContributions] = useState([]);
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [cotisations, setCotisations] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState({});
-  const [selectedMember, setSelectedMember] = useState(null);
-  const [showPaymentModal, setShowPaymentModal] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [generating, setGenerating] = useState(false);
 
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth() + 1;
-  const mois = `${year}-${String(month).padStart(2, '0')}`;
+  const moisKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
 
   useEffect(() => {
     fetchData();
-  }, [mois]);
+  }, [currentMonth, currentYear]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [contribRes, statsRes] = await Promise.all([
-        cotisationsAPI.getByMonth(mois),
-        cotisationsAPI.getStats(mois)
+      const [cotisationsRes, statsRes] = await Promise.all([
+        api.get(`/cotisations/month/${moisKey}`),
+        api.get(`/cotisations/stats/${moisKey}`)
       ]);
-      setContributions(contribRes.data);
+      setCotisations(cotisationsRes.data);
       setStats(statsRes.data);
     } catch (error) {
-      console.error('❌ Error:', error);
+      console.error('Erreur:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePrevMonth = () => {
-    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
-  };
-
-  const handleNextMonth = () => {
-    setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
-  };
-
-  const handlePayment = async (cotisationId) => {
-    setSaving(prev => ({ ...prev, [cotisationId]: true }));
-
+  // BOUTON GÉNÉRER
+  const handleGenerate = async () => {
+    setGenerating(true);
     try {
-      await cotisationsAPI.markAsPaid(cotisationId, { paymentMethod });
-      await fetchData();
-      setShowPaymentModal(null);
-      setPaymentMethod('cash');
+      await api.post('/cotisations/generate', { mois: moisKey });
+      await fetchData(); // Recharger
     } catch (error) {
-      console.error('❌ Error:', error);
-      alert('Erreur lors de l\'enregistrement');
+      console.error('Erreur génération:', error);
+      alert('Erreur lors de la génération');
     } finally {
-      setSaving(prev => ({ ...prev, [cotisationId]: false }));
+      setGenerating(false);
     }
   };
 
-  const handleCancelPayment = async (cotisationId) => {
-    if (!confirm('Annuler ce paiement ?')) return;
-    
-    setSaving(prev => ({ ...prev, [cotisationId]: true }));
-
+  // MARQUER PAYÉ
+  const handlePay = async (id) => {
     try {
-      await cotisationsAPI.update(cotisationId, { statut: 'non_paye', paidAt: null });
+      await api.patch(`/cotisations/${id}/pay`, { paymentMethod: 'cash' });
       await fetchData();
     } catch (error) {
-      console.error('❌ Error:', error);
-      alert('Erreur lors de l\'annulation');
-    } finally {
-      setSaving(prev => ({ ...prev, [cotisationId]: false }));
+      console.error('Erreur paiement:', error);
     }
   };
 
-  const handleDownloadReceipt = (contrib) => {
-    generateReceipt({
-      member: contrib.membre,
-      year,
-      month,
-      amount: contrib.montant,
-      paidAt: contrib.paidAt,
-      paymentMethod: contrib.paymentMethod
-    });
+  // ANNULER PAIEMENT
+  const handleCancel = async (id) => {
+    try {
+      await api.patch(`/cotisations/${id}/cancel`);
+      await fetchData();
+    } catch (error) {
+      console.error('Erreur annulation:', error);
+    }
   };
 
-  const handleDownloadMonthlyReport = () => {
-    generateMonthlyReport(contributions, year, month, stats);
-  };
+  const changeMonth = (delta) => {
+    let newMonth = currentMonth + delta;
+    let newYear = currentYear;
 
-  const paidCount = contributions.filter(c => c.statut === 'paye').length;
-  const unpaidCount = contributions.filter(c => c.statut !== 'paye').length;
-  const monthTotal = paidCount * AMOUNT;
+    if (newMonth > 12) {
+      newMonth = 1;
+      newYear++;
+    } else if (newMonth < 1) {
+      newMonth = 12;
+      newYear--;
+    }
+
+    setCurrentMonth(newMonth);
+    setCurrentYear(newYear);
+  };
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Cotisations</h1>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-400">
-            {AMOUNT.toLocaleString()} Ar / mois
-          </span>
+        <div>
+          <h1 className="text-2xl font-bold">Cotisations</h1>
+          <p className="text-gray-400">Gestion des cotisations mensuelles</p>
+        </div>
+      </div>
+
+      {/* Navigation mois + Bouton Générer */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-800/50 p-4 rounded-xl">
+        <div className="flex items-center gap-2">
           <button
-            onClick={handleDownloadMonthlyReport}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-sm transition"
+            onClick={() => changeMonth(-1)}
+            className="p-2 hover:bg-gray-700 rounded-lg transition"
           >
-            <FileText className="w-4 h-4" />
-            Export PDF
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <div className="flex items-center gap-2 min-w-[180px] justify-center">
+            <Calendar className="w-5 h-5 text-indigo-400" />
+            <span className="text-lg font-semibold">
+              {MONTHS[currentMonth - 1]} {currentYear}
+            </span>
+          </div>
+          <button
+            onClick={() => changeMonth(1)}
+            className="p-2 hover:bg-gray-700 rounded-lg transition"
+          >
+            <ChevronRight className="w-5 h-5" />
           </button>
         </div>
-      </div>
 
-      {/* Navigation Mois */}
-      <div className="flex items-center justify-center gap-4">
+        {/* BOUTON GÉNÉRER */}
         <button
-          onClick={handlePrevMonth}
-          className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition"
+          onClick={handleGenerate}
+          disabled={generating}
+          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-800 rounded-lg font-medium transition"
         >
-          <ChevronLeft className="w-5 h-5 text-white" />
-        </button>
-        
-        <div className="text-center min-w-[200px]">
-          <h2 className="text-xl font-semibold text-white">
-            {MONTHS[month - 1]} {year}
-          </h2>
-        </div>
-        
-        <button
-          onClick={handleNextMonth}
-          className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition"
-        >
-          <ChevronRight className="w-5 h-5 text-white" />
+          <Plus className="w-5 h-5" />
+          {generating ? 'Génération...' : 'Générer les cotisations'}
         </button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-gray-800/50 p-4 rounded-xl">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-600/20 rounded-lg">
-              <Check className="w-5 h-5 text-green-500" />
+            <div className="p-2 bg-green-500/20 rounded-lg">
+              <Check className="w-5 h-5 text-green-400" />
             </div>
             <div>
-              <p className="text-gray-400 text-sm">Payé</p>
-              <p className="text-xl font-bold text-white">{paidCount}</p>
+              <p className="text-2xl font-bold">{stats?.month?.paid || 0}</p>
+              <p className="text-sm text-gray-400">Payé</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+        <div className="bg-gray-800/50 p-4 rounded-xl">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-600/20 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-red-500" />
+            <div className="p-2 bg-orange-500/20 rounded-lg">
+              <Clock className="w-5 h-5 text-orange-400" />
             </div>
             <div>
-              <p className="text-gray-400 text-sm">En attente</p>
-              <p className="text-xl font-bold text-white">{unpaidCount}</p>
+              <p className="text-2xl font-bold">{stats?.month?.unpaid || 0}</p>
+              <p className="text-sm text-gray-400">En attente</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+        <div className="bg-gray-800/50 p-4 rounded-xl">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-600/20 rounded-lg">
-              <Wallet className="w-5 h-5 text-blue-500" />
+            <div className="p-2 bg-indigo-500/20 rounded-lg">
+              <DollarSign className="w-5 h-5 text-indigo-400" />
             </div>
             <div>
-              <p className="text-gray-400 text-sm">Collecté ce mois</p>
-              <p className="text-xl font-bold text-white">
-                {monthTotal.toLocaleString()} Ar
+              <p className="text-2xl font-bold">
+                {(stats?.month?.collected || 0).toLocaleString()} Ar
               </p>
+              <p className="text-sm text-gray-400">Ce mois</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
+        <div className="bg-gray-800/50 p-4 rounded-xl">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-600/20 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-purple-500" />
+            <div className="p-2 bg-purple-500/20 rounded-lg">
+              <Users className="w-5 h-5 text-purple-400" />
             </div>
             <div>
-              <p className="text-gray-400 text-sm">Total {year}</p>
-              <p className="text-xl font-bold text-white">
-                {stats?.totalCollected?.toLocaleString() || 0} Ar
+              <p className="text-2xl font-bold">
+                {(stats?.totalCollected || 0).toLocaleString()} Ar
               </p>
+              <p className="text-sm text-gray-400">Total {currentYear}</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Progress Bar Annuel */}
-      {stats && (
-        <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
-          <div className="flex justify-between text-sm mb-2">
-            <span className="text-gray-400">Progression annuelle</span>
-            <span className="text-white font-medium">{stats.percentage || 0}%</span>
-          </div>
-          <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 transition-all duration-500"
-              style={{ width: `${stats.percentage || 0}%` }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Table */}
-      <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
+      {/* Liste des cotisations */}
+      <div className="bg-gray-800/50 rounded-xl overflow-hidden">
         {loading ? (
-          <div className="p-6 text-center text-gray-400">Chargement...</div>
-        ) : contributions.length === 0 ? (
-          <div className="p-6 text-center text-gray-400">
-            Aucune cotisation pour ce mois
+          <div className="p-8 text-center text-gray-400">Chargement...</div>
+        ) : cotisations.length === 0 ? (
+          <div className="p-8 text-center">
+            <p className="text-gray-400 mb-4">Aucune cotisation pour ce mois</p>
+            <button
+              onClick={handleGenerate}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium transition"
+            >
+              Générer les cotisations maintenant
+            </button>
           </div>
         ) : (
           <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-700 bg-gray-900">
-                <th className="text-left py-4 px-4 text-gray-400 font-semibold text-sm">Membre</th>
-                <th className="text-left py-4 px-4 text-gray-400 font-semibold text-sm">Rôle</th>
-                <th className="text-center py-4 px-4 text-gray-400 font-semibold text-sm">Montant</th>
-                <th className="text-center py-4 px-4 text-gray-400 font-semibold text-sm">Statut</th>
-                <th className="text-center py-4 px-4 text-gray-400 font-semibold text-sm">Actions</th>
+            <thead className="bg-gray-700/50">
+              <tr>
+                <th className="text-left p-4 font-medium">Membre</th>
+                <th className="text-left p-4 font-medium hidden sm:table-cell">Rôle</th>
+                <th className="text-center p-4 font-medium">Montant</th>
+                <th className="text-center p-4 font-medium">Statut</th>
+                <th className="text-center p-4 font-medium">Action</th>
               </tr>
             </thead>
-            <tbody>
-              {contributions.map((contrib) => {
-                const isLoading = saving[contrib._id];
-                const isPaid = contrib.statut === 'paye';
-                
-                return (
-                  <tr key={contrib._id} className="border-b border-gray-800 hover:bg-gray-900/50">
-                    <td className="py-4 px-4">
-                      <span className="font-medium text-white text-sm">
-                        {contrib.membre?.firstName} {contrib.membre?.lastName}
+            <tbody className="divide-y divide-gray-700/50">
+              {cotisations.map((cotisation) => (
+                <tr key={cotisation._id} className="hover:bg-gray-700/30">
+                  <td className="p-4">
+                    <p className="font-medium">
+                      {cotisation.membre?.firstName} {cotisation.membre?.lastName}
+                    </p>
+                  </td>
+                  <td className="p-4 hidden sm:table-cell text-gray-400">
+                    {cotisation.membre?.role}
+                  </td>
+                  <td className="p-4 text-center">
+                    {cotisation.montant?.toLocaleString()} Ar
+                  </td>
+                  <td className="p-4 text-center">
+                    {cotisation.statut === 'paye' ? (
+                      <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded-full text-sm">
+                        Payé
                       </span>
-                    </td>
-                    
-                    <td className="py-4 px-4 text-sm text-gray-400">
-                      {contrib.membre?.role || 'N/A'}
-                    </td>
-                    
-                    <td className="py-4 px-4 text-center">
-                      <span className="text-white font-medium">
-                        {(contrib.montant || AMOUNT).toLocaleString()} Ar
+                    ) : (
+                      <span className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-full text-sm">
+                        En attente
                       </span>
-                    </td>
-                    
-                    <td className="py-4 px-4 text-center">
-                      {isPaid ? (
-                        <div>
-                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-600/20 text-green-500 rounded-full text-sm">
-                            <Check className="w-4 h-4" />
-                            Payé
-                          </span>
-                          {contrib.paidAt && (
-                            <p className="text-xs text-gray-500 mt-1">
-                              {new Date(contrib.paidAt).toLocaleDateString('fr-FR')}
-                            </p>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-red-600/20 text-red-500 rounded-full text-sm">
-                          <X className="w-4 h-4" />
-                          Non payé
-                        </span>
-                      )}
-                    </td>
-                    
-                    <td className="py-4 px-4">
-                      <div className="flex items-center justify-center gap-2">
-                        {isPaid ? (
-                          <>
-                            <button
-                              onClick={() => handleDownloadReceipt(contrib)}
-                              className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition"
-                              title="Télécharger le reçu"
-                            >
-                              <Download className="w-4 h-4 text-gray-300" />
-                            </button>
-                            <button
-                              onClick={() => handleCancelPayment(contrib._id)}
-                              disabled={isLoading}
-                              className="p-2 bg-gray-700 hover:bg-red-600/20 rounded-lg transition"
-                              title="Annuler le paiement"
-                            >
-                              <X className="w-4 h-4 text-gray-300 hover:text-red-400" />
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            onClick={() => setShowPaymentModal(contrib._id)}
-                            disabled={isLoading}
-                            className={`px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white text-sm font-medium transition ${
-                              isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                            }`}
-                          >
-                            {isLoading ? '...' : 'Marquer payé'}
-                          </button>
-                        )}
-                        <button
-                          onClick={() => setSelectedMember(contrib.membre)}
-                          className="p-2 bg-gray-700 hover:bg-indigo-600/20 rounded-lg transition"
-                          title="Voir l'historique"
-                        >
-                          <History className="w-4 h-4 text-gray-300 hover:text-indigo-400" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                    )}
+                  </td>
+                  <td className="p-4 text-center">
+                    {cotisation.statut === 'paye' ? (
+                      <button
+                        onClick={() => handleCancel(cotisation._id)}
+                        className="px-3 py-1 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-lg text-sm transition"
+                      >
+                        Annuler
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handlePay(cotisation._id)}
+                        className="px-3 py-1 bg-green-500/20 text-green-400 hover:bg-green-500/30 rounded-lg text-sm transition"
+                      >
+                        Marquer payé
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}
       </div>
-
-      {/* Modal de paiement */}
-      {showPaymentModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-white mb-4">
-              Enregistrer le paiement
-            </h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">
-                  Mode de paiement
-                </label>
-                <select
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
-                >
-                  <option value="cash">Espèces</option>
-                  <option value="mobile_money">Mobile Money</option>
-                  <option value="bank">Virement bancaire</option>
-                  <option value="other">Autre</option>
-                </select>
-              </div>
-              
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setShowPaymentModal(null);
-                    setPaymentMethod('cash');
-                  }}
-                  className="flex-1 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-gray-300 transition"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={() => handlePayment(showPaymentModal)}
-                  disabled={saving[showPaymentModal]}
-                  className="flex-1 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white transition disabled:opacity-50"
-                >
-                  {saving[showPaymentModal] ? '...' : 'Confirmer'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal historique */}
-      {selectedMember && (
-        <MemberContributionHistory
-          member={selectedMember}
-          onClose={() => setSelectedMember(null)}
-        />
-      )}
     </div>
   );
 };
