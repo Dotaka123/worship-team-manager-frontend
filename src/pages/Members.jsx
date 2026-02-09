@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Users } from 'lucide-react';
+import { Plus, Users, Search, Filter, Loader2 } from 'lucide-react';
 import api from '../services/api';
 import MemberCard from '../components/MemberCard';
 import MemberForm from '../components/MemberForm';
@@ -10,6 +10,7 @@ const Members = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchMembers();
@@ -22,7 +23,6 @@ const Members = () => {
       setMembers(response.data);
     } catch (error) {
       console.error('Erreur:', error);
-      alert('Erreur lors du chargement des membres');
     } finally {
       setLoading(false);
     }
@@ -61,63 +61,114 @@ const Members = () => {
     }
   };
 
-  const filteredMembers = members.filter(m => 
-    filterStatus === 'all' || m.status === filterStatus
-  );
+  const filteredMembers = members.filter(member => {
+    const matchesStatus = filterStatus === 'all' || member.status === filterStatus;
+    const matchesSearch = (
+      member.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.role?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    return matchesStatus && matchesSearch;
+  });
+
+  const statusCount = {
+    all: members.length,
+    actif: members.filter(m => m.status === 'actif').length,
+    en_pause: members.filter(m => m.status === 'en_pause').length,
+    inactif: members.filter(m => m.status === 'inactif').length,
+  };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="text-4xl font-black text-white animate-pulse">⏳ Chargement...</div>
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+        <div className="flex items-center gap-3 text-neutral-500">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          <span className="text-sm font-medium">Chargement des membres...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-neutral-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
         {/* En-tête */}
-        <div className="mb-8 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl p-8 border-4 border-purple-500">
-          <h1 className="text-5xl font-black text-white mb-3 flex items-center gap-4">
-            <Users className="w-12 h-12" />
-            Gestion des membres
-          </h1>
-          <p className="text-2xl text-white font-bold">
-            🎵 {members.length} membre{members.length > 1 ? 's' : ''} dans l'équipe
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-indigo-600/10 rounded-md">
+              <Users className="w-5 h-5 text-indigo-400" />
+            </div>
+            <h1 className="text-xl font-semibold text-neutral-100 tracking-tight">
+              Gestion des membres
+            </h1>
+          </div>
+          <p className="text-sm text-neutral-500">
+            {members.length} membre{members.length > 1 ? 's' : ''} dans l'équipe de louange
           </p>
         </div>
 
-        {/* Filtres et actions */}
-        <div className="flex flex-wrap gap-4 mb-8">
+        {/* Barre d'outils */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          {/* Recherche */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Rechercher un membre..."
+              className="w-full pl-10 pr-4 py-2 bg-neutral-900 border border-neutral-800 rounded-md text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30 transition-colors"
+            />
+          </div>
+
+          {/* Filtres */}
+          <div className="flex gap-2">
+            {[
+              { key: 'all', label: 'Tous', count: statusCount.all },
+              { key: 'actif', label: 'Actifs', count: statusCount.actif },
+              { key: 'en_pause', label: 'En pause', count: statusCount.en_pause },
+              { key: 'inactif', label: 'Inactifs', count: statusCount.inactif },
+            ].map(({ key, label, count }) => (
+              <button
+                key={key}
+                onClick={() => setFilterStatus(key)}
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  filterStatus === key
+                    ? 'bg-neutral-800 text-neutral-200 border border-neutral-700'
+                    : 'text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900'
+                }`}
+              >
+                {label}
+                <span className="ml-2 text-xs text-neutral-500">({count})</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Bouton ajouter */}
           <button
             onClick={() => setShowForm(true)}
-            className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white px-8 py-4 rounded-xl hover:from-green-500 hover:via-emerald-500 hover:to-teal-500 transition-all flex items-center gap-3 font-black text-xl shadow-2xl hover:shadow-green-500/50 active:scale-95"
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 active:bg-indigo-800 transition-colors shrink-0"
           >
-            <Plus className="w-7 h-7" />
-            Nouveau membre
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">Nouveau membre</span>
           </button>
-
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-6 py-4 bg-slate-800 border-2 border-purple-600 rounded-xl focus:ring-2 focus:ring-purple-500 text-white font-black text-lg shadow-xl"
-          >
-            <option value="all">📋 Tous</option>
-            <option value="actif">✅ Actifs</option>
-            <option value="en_pause">⏸️ En pause</option>
-            <option value="inactif">❌ Inactifs</option>
-          </select>
         </div>
 
         {/* Liste des membres */}
         {filteredMembers.length === 0 ? (
-          <div className="text-center py-20 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl border-4 border-dashed border-purple-600">
-            <Users className="w-24 h-24 mx-auto text-purple-400 mb-6" />
-            <p className="text-white text-3xl font-black mb-2">Aucun membre trouvé</p>
-            <p className="text-purple-300 text-xl font-bold">Ajoutez votre premier membre !</p>
+          <div className="text-center py-16 bg-neutral-900/50 border border-dashed border-neutral-800 rounded-lg">
+            <Users className="w-10 h-10 mx-auto text-neutral-600 mb-3" />
+            <p className="text-sm font-medium text-neutral-400 mb-1">
+              {searchQuery ? 'Aucun membre ne correspond' : 'Aucun membre'}
+            </p>
+            <p className="text-sm text-neutral-500">
+              {searchQuery ? 'Modifiez votre recherche' : 'Ajoutez votre premier membre'}
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {filteredMembers.map(member => (
               <MemberCard
                 key={member._id}
