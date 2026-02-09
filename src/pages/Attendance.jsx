@@ -1,86 +1,153 @@
-import { useState, useEffect } from 'react';
-import { membersAPI, attendanceAPI } from '../services/api';
-import AttendanceTable from '../components/AttendanceTable';
+import { useState } from 'react';
+import { Trash2, Save } from 'lucide-react';
 
-const Attendance = () => {
-  const [members, setMembers] = useState([]);
-  const [attendance, setAttendance] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split('T')[0]
-  );
-  const [loading, setLoading] = useState(true);
+const AttendanceTable = ({ members, attendance, onMark }) => {
+  const [reasons, setReasons] = useState({});
+  const [saving, setSaving] = useState({});
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [membersRes, attendanceRes] = await Promise.all([
-          membersAPI.getAll({ active: 'true' }),
-          attendanceAPI.getByDate(selectedDate)
-        ]);
-        setMembers(membersRes.data);
-        setAttendance(attendanceRes.data);
-      } catch (error) {
-        console.error('Erreur:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [selectedDate]);
+  const getStatus = (memberId) => {
+    const record = attendance.find(a => 
+      String(a.member?._id || a.member) === String(memberId)
+    );
+    return record?.status || null;
+  };
 
-  const handleMark = async ({ memberId, status, reason }) => {
+  const getReason = (memberId) => {
+    const record = attendance.find(a => 
+      String(a.member?._id || a.member) === String(memberId)
+    );
+    return record?.reason || '';
+  };
+
+  const handleMark = async (memberId, status) => {
+    // Si absent/excused, vérifier qu'il y a un motif
+    if ((status === 'absent' || status === 'excused') && !reasons[memberId]?.trim()) {
+      alert('Veuillez entrer un motif');
+      return;
+    }
+
+    setSaving(prev => ({ ...prev, [memberId]: true }));
+    
     try {
-      const { data } = await attendanceAPI.mark({
+      await onMark({
         memberId,
-        date: selectedDate,
         status,
-        reason
+        reason: status === 'present' ? null : reasons[memberId]?.trim()
       });
-      
-      // Mettre à jour l'état local
-      setAttendance(prev => {
-        const existing = prev.findIndex(a => 
-          (a.member?._id || a.member) === memberId
-        );
-        if (existing >= 0) {
-          const updated = [...prev];
-          updated[existing] = { ...updated[existing], status, reason };
-          return updated;
-        }
-        return [...prev, { ...data, member: memberId }];
-      });
-    } catch (error) {
-      alert('Erreur lors de l\'enregistrement');
+    } finally {
+      setSaving(prev => ({ ...prev, [memberId]: false }));
     }
   };
 
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Présences</h1>
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg"
-        />
-      </div>
+  const handleReasonChange = (memberId, value) => {
+    setReasons(prev => ({
+      ...prev,
+      [memberId]: value
+    }));
+  };
 
-      <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
-        {loading ? (
-          <p className="p-6 text-gray-400">Chargement...</p>
-        ) : members.length === 0 ? (
-          <p className="p-6 text-gray-400">Aucun membre actif</p>
-        ) : (
-          <AttendanceTable
-            members={members}
-            attendance={attendance}
-            onMark={handleMark}
-          />
-        )}
-      </div>
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead>
+          <tr className="border-b border-gray-700 bg-gray-900">
+            <th className="text-left py-4 px-4 text-gray-400 font-semibold text-sm">Membre</th>
+            <th className="text-left py-4 px-4 text-gray-400 font-semibold text-sm">Rôle</th>
+            <th className="text-center py-4 px-4 text-gray-400 font-semibold text-sm">Statut</th>
+            <th className="text-left py-4 px-4 text-gray-400 font-semibold text-sm">Motif</th>
+          </tr>
+        </thead>
+        <tbody>
+          {members.map((member) => {
+            const status = getStatus(member._id);
+            const storedReason = getReason(member._id);
+            const reason = reasons[member._id] ?? storedReason;
+            const isLoading = saving[member._id];
+
+            return (
+              <tr key={member._id} className="border-b border-gray-800 hover:bg-gray-900/50">
+                <td className="py-4 px-4">
+                  <div>
+                    <span className="font-medium text-white text-sm">
+                      {member.firstName} {member.lastName}
+                    </span>
+                    {member.email && (
+                      <p className="text-gray-500 text-xs mt-1">{member.email}</p>
+                    )}
+                  </div>
+                </td>
+
+                <td className="py-4 px-4 text-gray-400 text-sm capitalize">
+                  {member.instrument ? (
+                    <div>
+                      <p>{member.role}</p>
+                      <p className="text-gray-500 text-xs">{member.instrument}</p>
+                    </div>
+                  ) : (
+                    member.role
+                  )}
+                </td>
+
+                <td className="py-4 px-4">
+                  <div className="flex justify-center gap-2">
+                    <button
+                      onClick={() => handleMark(member._id, 'present')}
+                      disabled={isLoading}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                        status === 'present'
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-700 text-gray-400 hover:bg-green-600/20'
+                      } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      ✓ Présent
+                    </button>
+                    <button
+                      onClick={() => handleMark(member._id, 'absent')}
+                      disabled={isLoading}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
+                        status === 'absent'
+                          ? 'bg-red-600 text-white'
+                          : 'bg-gray-700 text-gray-400 hover:bg-red-600/20'
+                      } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      ✗ Absent
+                    </button>
+                  </div>
+                </td>
+
+                <td className="py-4 px-4">
+                  {(status === 'absent' || status === 'excused') ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Motif d'absence..."
+                        value={reason || ''}
+                        onChange={(e) => handleReasonChange(member._id, e.target.value)}
+                        disabled={isLoading}
+                        className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-sm text-white placeholder-gray-500 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
+                      />
+                      {reason && reason !== storedReason && (
+                        <button
+                          onClick={() => handleMark(member._id, status)}
+                          disabled={isLoading}
+                          className="px-2 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg text-white transition disabled:opacity-50"
+                          title="Enregistrer le motif"
+                        >
+                          <Save className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-gray-500 text-sm">-</span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 };
 
-export default Attendance;
+export default AttendanceTable;
