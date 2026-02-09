@@ -1,6 +1,6 @@
 import { Mail, Phone, Music, Users, Pencil, Trash2, Calendar, MapPin, Cake, User, Users2, Zap, Drum, Volume2 } from 'lucide-react';
 
-const MemberCard = ({ member, onEdit, onDelete }) => {
+const MemberCard = ({ member, onClick, onEdit, onDelete }) => {
   const statusStyles = {
     actif: 'bg-emerald-950/30 text-emerald-400 border-emerald-800/30',
     inactif: 'bg-neutral-800 text-neutral-400 border-neutral-700',
@@ -13,25 +13,25 @@ const MemberCard = ({ member, onEdit, onDelete }) => {
     en_pause: 'En pause',
   };
 
-  // Couleurs selon le sexe
   const genderStyles = {
     homme: {
       bg: 'bg-blue-950/30',
       border: 'border-blue-800/30',
       text: 'text-blue-400',
-      avatarBg: 'bg-blue-900/50'
+      avatarBg: 'bg-blue-900/50',
+      ring: 'ring-blue-500/30'
     },
     femme: {
       bg: 'bg-pink-950/30',
       border: 'border-pink-800/30',
       text: 'text-pink-400',
-      avatarBg: 'bg-pink-900/50'
+      avatarBg: 'bg-pink-900/50',
+      ring: 'ring-pink-500/30'
     }
   };
 
   const genderStyle = genderStyles[member.gender] || genderStyles.homme;
 
-  // Fonction pour obtenir le label du rôle avec accord de genre
   const getRoleLabel = () => {
     const baseRole = member.role || 'Musicien';
     if (member.gender === 'femme') {
@@ -45,7 +45,6 @@ const MemberCard = ({ member, onEdit, onDelete }) => {
     return baseRole;
   };
 
-  // Icônes d'instruments
   const getInstrumentIcon = () => {
     if (!member.instrument) return null;
     const instrument = member.instrument.toLowerCase();
@@ -65,7 +64,6 @@ const MemberCard = ({ member, onEdit, onDelete }) => {
     return <Music className="w-4 h-4 text-neutral-500 shrink-0" />;
   };
 
-  // Icône pour le rôle
   const getRoleIcon = () => {
     const role = member.role?.toLowerCase() || '';
     if (role.includes('chant')) {
@@ -81,14 +79,29 @@ const MemberCard = ({ member, onEdit, onDelete }) => {
   const genderIcon = member.gender === 'femme' ? '♀' : '♂';
 
   return (
-    <div className={`${genderStyle.bg} border ${genderStyle.border} rounded-lg p-5 hover:border-opacity-50 transition-colors`}>
+    <div 
+      onClick={onClick}
+      className={`${genderStyle.bg} border ${genderStyle.border} rounded-lg p-5 hover:border-opacity-50 transition-all cursor-pointer hover:scale-[1.02] hover:shadow-lg`}
+    >
       
-      {/* En-tête avec avatar */}
+      {/* En-tête avec avatar/photo */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-md ${genderStyle.avatarBg} flex items-center justify-center text-sm font-medium ${genderStyle.text} border border-neutral-700 shrink-0 relative`}>
-            {initials || '—'}
-            <span className="absolute -bottom-1 -right-1 text-xs bg-neutral-900 rounded-full w-5 h-5 flex items-center justify-center">
+          {/* Photo ou Avatar */}
+          <div className="relative shrink-0">
+            {member.photo ? (
+              <img
+                src={member.photo}
+                alt={`${member.firstName} ${member.lastName}`}
+                className={`w-12 h-12 rounded-md object-cover ring-2 ${genderStyle.ring}`}
+              />
+            ) : (
+              <div className={`w-12 h-12 rounded-md ${genderStyle.avatarBg} flex items-center justify-center text-sm font-medium ${genderStyle.text} border border-neutral-700`}>
+                {initials || <User className="w-5 h-5" />}
+              </div>
+            )}
+            {/* Badge genre */}
+            <span className={`absolute -bottom-1 -right-1 text-xs bg-neutral-900 rounded-full w-5 h-5 flex items-center justify-center border border-neutral-700 ${genderStyle.text}`}>
               {genderIcon}
             </span>
           </div>
@@ -103,17 +116,17 @@ const MemberCard = ({ member, onEdit, onDelete }) => {
           </div>
         </div>
         
-        {/* Actions discrètes */}
+        {/* Actions */}
         <div className="flex gap-1 shrink-0">
           <button
-            onClick={() => onEdit(member)}
+            onClick={onEdit}
             className="p-1.5 text-neutral-500 hover:text-indigo-400 hover:bg-indigo-950/20 rounded-md transition-colors"
             title="Modifier"
           >
             <Pencil className="w-4 h-4" />
           </button>
           <button
-            onClick={() => onDelete(member._id)}
+            onClick={onDelete}
             className="p-1.5 text-neutral-500 hover:text-red-400 hover:bg-red-950/20 rounded-md transition-colors"
             title="Supprimer"
           >
@@ -160,27 +173,27 @@ const MemberCard = ({ member, onEdit, onDelete }) => {
         )}
 
         {member.email && (
-          <a 
-            href={`mailto:${member.email}`}
+          <div 
+            onClick={(e) => e.stopPropagation()}
             className="flex items-center gap-3 text-neutral-400 hover:text-neutral-200 transition-colors group"
           >
             <Mail className="w-4 h-4 text-neutral-500 shrink-0 group-hover:text-neutral-400" />
-            <span className="truncate">{member.email}</span>
-          </a>
+            <a href={`mailto:${member.email}`} className="truncate">{member.email}</a>
+          </div>
         )}
 
         {member.phone && (
-          <a 
-            href={`tel:${member.phone}`}
+          <div 
+            onClick={(e) => e.stopPropagation()}
             className="flex items-center gap-3 text-neutral-400 hover:text-neutral-200 transition-colors group"
           >
             <Phone className="w-4 h-4 text-neutral-500 shrink-0 group-hover:text-neutral-400" />
-            <span>{member.phone}</span>
-          </a>
+            <a href={`tel:${member.phone}`}>{member.phone}</a>
+          </div>
         )}
       </div>
 
-      {/* Date d'entrée et détails */}
+      {/* Footer */}
       {(member.dateEntree || member.notesAccompagnement) && (
         <div className="mt-4 pt-3 border-t border-neutral-800 space-y-2">
           {member.dateEntree && (
