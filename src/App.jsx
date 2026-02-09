@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Members from './pages/Members';
 import MemberDetail from './pages/MemberDetail';
 import Attendance from './pages/Attendance';
+import Cotisations from './pages/Cotisations';
 
 // Route protégée
 const ProtectedRoute = ({ children }) => {
@@ -37,6 +38,7 @@ function App() {
             <Route path="members" element={<Members />} />
             <Route path="members/:id" element={<MemberDetail />} />
             <Route path="attendance" element={<Attendance />} />
+            <Route path="cotisations" element={<Cotisations />} />
           </Route>
         </Routes>
       </BrowserRouter>
