@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Download, Check, AlertCircle, Calendar } from 'lucide-react';
-import { contributionsAPI } from '../services/api';
+import { cotisationsAPI } from '../services/api';
 import { generateMemberHistory, generateReceipt } from '../services/pdfService';
 
 const MONTHS = [
