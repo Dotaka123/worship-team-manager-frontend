@@ -1,4 +1,4 @@
-import { Mail, Phone, Music, Users, Pencil, Trash2, Calendar } from 'lucide-react';
+import { Mail, Phone, Music, Users, Pencil, Trash2, Calendar, MapPin, Cake } from 'lucide-react';
 
 const MemberCard = ({ member, onEdit, onDelete }) => {
   const statusStyles = {
@@ -74,6 +74,20 @@ const MemberCard = ({ member, onEdit, onDelete }) => {
           <div className="flex items-center gap-3 text-neutral-400">
             <span className="w-4 h-4 flex items-center justify-center text-xs text-neutral-500 shrink-0">G</span>
             <span className="truncate">{member.groupe}</span>
+          </div>
+        )}
+
+        {member.dateOfBirth && (
+          <div className="flex items-center gap-3 text-neutral-400">
+            <Cake className="w-4 h-4 text-neutral-500 shrink-0" />
+            <span className="truncate">{new Date(member.dateOfBirth).toLocaleDateString('fr-FR')} {member.age && `(${member.age} ans)`}</span>
+          </div>
+        )}
+
+        {member.residence && (
+          <div className="flex items-center gap-3 text-neutral-400">
+            <MapPin className="w-4 h-4 text-neutral-500 shrink-0" />
+            <span className="truncate">{member.residence}</span>
           </div>
         )}
 
