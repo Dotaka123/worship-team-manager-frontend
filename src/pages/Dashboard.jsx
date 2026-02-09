@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { membersAPI } from '../services/api';
+import { Users, Mic2, Guitar, Zap, CheckCircle } from 'lucide-react';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -10,58 +11,117 @@ const Dashboard = () => {
     techniciens: 0,
     actifs: 0
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const { data } = await membersAPI.getAll();
+        
+        // ← Fonction pour normaliser les rôles
+        const normalizeRole = (role) => {
+          if (!role) return '';
+          return role.toLowerCase().replace('(euse)', '').trim();
+        };
+
         setStats({
           total: data.length,
-          chanteurs: data.filter(m => m.role === 'chanteur').length,
-          musiciens: data.filter(m => m.role === 'musicien').length,
-          techniciens: data.filter(m => m.role === 'technicien').length,
-          actifs: data.filter(m => m.isActive).length
+          chanteurs: data.filter(m => normalizeRole(m.role) === 'chanteur').length,
+          musiciens: data.filter(m => normalizeRole(m.role) === 'musicien').length,
+          techniciens: data.filter(m => normalizeRole(m.role) === 'technicien').length,
+          actifs: data.filter(m => m.status === 'actif').length
         });
+
+        // Debug
+        console.log('📊 Statistiques calculées:', {
+          total: data.length,
+          roles: [...new Set(data.map(m => m.role))],
+          statuts: [...new Set(data.map(m => m.status))]
+        });
+
       } catch (error) {
-        console.error('Erreur:', error);
+        console.error('❌ Erreur chargement stats:', error);
+      } finally {
+        setLoading(false);
       }
     };
+    
     fetchStats();
   }, []);
 
-  const StatCard = ({ title, value, color }) => (
-    <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-      <p className="text-gray-400 text-sm">{title}</p>
-      <p className={`text-3xl font-bold mt-1 ${color}`}>{value}</p>
+  const StatCard = ({ icon: Icon, title, value, color }) => (
+    <div className={`bg-neutral-900 border border-neutral-800 rounded-lg p-6 transition-all hover:border-neutral-700 ${color}`}>
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-2">
+            {title}
+          </p>
+          <p className="text-3xl font-bold text-neutral-100">{value}</p>
+        </div>
+        <Icon className="w-8 h-8 text-neutral-700" />
+      </div>
     </div>
   );
 
-  return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Tableau de bord</h1>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-neutral-400">Chargement...</p>
+      </div>
+    );
+  }
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-        <StatCard title="Total membres" value={stats.total} color="text-white" />
-        <StatCard title="Chanteurs" value={stats.chanteurs} color="text-purple-400" />
-        <StatCard title="Musiciens" value={stats.musiciens} color="text-blue-400" />
-        <StatCard title="Techniciens" value={stats.techniciens} color="text-green-400" />
-        <StatCard title="Actifs" value={stats.actifs} color="text-primary-400" />
+  return (
+    <div className="max-w-6xl mx-auto p-6">
+      <h1 className="text-3xl font-bold text-neutral-100 mb-8">Tableau de bord</h1>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <StatCard 
+          icon={Users}
+          title="Total membres" 
+          value={stats.total} 
+          color="hover:border-indigo-500/50"
+        />
+        <StatCard 
+          icon={Mic2}
+          title="Chanteurs" 
+          value={stats.chanteurs} 
+          color="hover:border-emerald-500/50"
+        />
+        <StatCard 
+          icon={Guitar}
+          title="Musiciens" 
+          value={stats.musiciens} 
+          color="hover:border-blue-500/50"
+        />
+        <StatCard 
+          icon={Zap}
+          title="Techniciens" 
+          value={stats.techniciens} 
+          color="hover:border-amber-500/50"
+        />
+        <StatCard 
+          icon={CheckCircle}
+          title="Actifs" 
+          value={stats.actifs} 
+          color="hover:border-green-500/50"
+        />
       </div>
 
       {/* Actions rapides */}
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-        <h2 className="text-lg font-semibold mb-4">Actions rapides</h2>
+      <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-6">
+        <h2 className="text-lg font-semibold text-neutral-100 mb-4">Actions rapides</h2>
         <div className="flex flex-wrap gap-3">
           <Link
             to="/members"
-            className="px-4 py-2 bg-primary-600 hover:bg-primary-700 rounded-lg transition"
+            className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors font-medium text-sm"
           >
             Gérer les membres
           </Link>
           <Link
             to="/attendance"
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition"
+            className="px-4 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-lg transition-colors font-medium text-sm border border-neutral-700"
           >
             Marquer les présences
           </Link>
