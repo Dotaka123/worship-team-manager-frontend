@@ -207,4 +207,61 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
                       )}
                     </div>
                   ) : status === 'en_retard' ? (
-           
+                    <div className="flex gap-2">
+                      <div className="flex-1 flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-gray-400" />
+                        <input
+                          type="time"
+                          value={arrivalTime || ''}
+                          onChange={(e) => handleArrivalTimeChange(member._id, e.target.value)}
+                          disabled={isLoading}
+                          className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded text-sm text-white disabled:opacity-50"
+                        />
+                      </div>
+                      {arrivalTime && arrivalTime !== storedArrivalTime && (
+                        <button
+                          onClick={() => handleMark(member._id, 'en_retard')}
+                          disabled={isLoading}
+                          className="px-2 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white transition disabled:opacity-50"
+                          title="Enregistrer"
+                        >
+                          <Save className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  ) : status === 'present' ? (
+                    <div className="flex gap-2 items-center">
+                      <Clock className="w-4 h-4 text-gray-400" />
+                      <input
+                        type="time"
+                        value={arrivalTime || ''}
+                        onChange={(e) => handleArrivalTimeChange(member._id, e.target.value)}
+                        disabled={isLoading}
+                        className="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-sm text-white placeholder-gray-500 disabled:opacity-50"
+                        placeholder="Optionnel"
+                      />
+                      {arrivalTime && arrivalTime !== storedArrivalTime && (
+                        <button
+                          onClick={() => handleMark(member._id, 'present')}
+                          disabled={isLoading}
+                          className="px-2 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white transition disabled:opacity-50"
+                          title="Enregistrer"
+                        >
+                          <Save className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-gray-500 text-sm">-</span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default AttendanceTable;
