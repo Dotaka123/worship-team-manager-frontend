@@ -5,6 +5,7 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    gender: 'homme',
     email: '',
     phone: '',
     dateOfBirth: '',
@@ -24,6 +25,7 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
       setFormData({
         firstName: member.firstName || '',
         lastName: member.lastName || '',
+        gender: member.gender || 'homme',
         email: member.email || '',
         phone: member.phone || '',
         dateOfBirth: member.dateOfBirth 
@@ -115,10 +117,12 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
     }
 
     console.log('📝 Formulaire data:', formData);
+    console.log('🔍 Gender envoyé:', formData.gender);
     console.log('🔍 Role envoyé:', formData.role);
 
     const dataToSubmit = {
       ...formData,
+      gender: formData.gender,
       email: formData.email || null,
       dateOfBirth: formData.dateOfBirth || null,
       residence: formData.residence || null,
@@ -207,19 +211,21 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
           </div>
 
           {/* Sexe */}
-<div>
-  <label className="block text-sm font-medium text-neutral-300 mb-1">
-    Sexe
-  </label>
-  <select
-    value={formData.gender || 'homme'}
-    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-    className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-neutral-200 focus:outline-none focus:border-indigo-500"
-  >
-    <option value="homme">Homme</option>
-    <option value="femme">Femme</option>
-  </select>
-</div>
+          <div>
+            <label className={labelBase}>
+              <User className="w-3.5 h-3.5" />
+              Sexe
+            </label>
+            <select
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              className={`${inputBase} appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23737373%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat pr-10`}
+            >
+              <option value="homme">Homme</option>
+              <option value="femme">Femme</option>
+            </select>
+          </div>
 
           {/* Section Contact */}
           <div className="grid grid-cols-2 gap-4">
