@@ -68,4 +68,12 @@ export const notesAPI = {
   delete: (id) => api.delete(`/notes/${id}`)
 };
 
+export const cotisationsAPI = {
+  getByMonth: (year, month) => API.get(`/cotisations/month?year=${year}&month=${month}`),
+  pay: (data) => API.post('/cotisations/pay', data),
+  cancel: (data) => API.post('/cotisations/cancel', data),
+  getStats: (year) => API.get(`/cotisations/stats?year=${year}`),
+  getMemberHistory: (memberId, year) => API.get(`/cotisations/member/${memberId}?year=${year}`)
+};
+
 export default api;
