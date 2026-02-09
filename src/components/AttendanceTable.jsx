@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Save } from 'lucide-react';
+import { Save, Clock } from 'lucide-react';
 
 const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
   const [reasons, setReasons] = useState({});
+  const [arrivalTimes, setArrivalTimes] = useState({});
   const [saving, setSaving] = useState({});
 
-  // Protection : vérifier que members est un tableau
   if (!Array.isArray(members) || members.length === 0) {
     return (
       <div className="p-6 text-gray-400 text-center">
@@ -28,11 +28,25 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
     return record?.reason || '';
   };
 
+  const getArrivalTime = (memberId) => {
+    const record = attendance.find(a => 
+      String(a.member?._id || a.member) === String(memberId)
+    );
+    return record?.arrivalTime || '';
+  };
+
   const handleMark = async (memberId, status) => {
     const reason = reasons[memberId]?.trim();
+    const arrivalTime = arrivalTimes[memberId]?.trim();
 
+    // Validations
     if ((status === 'absent' || status === 'excused') && !reason) {
       alert('Veuillez entrer un motif');
+      return;
+    }
+
+    if (status === 'en_retard' && !arrivalTime) {
+      alert('Veuillez entrer l\'heure d\'arrivée');
       return;
     }
 
@@ -42,7 +56,8 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
       await onMark({
         memberId,
         status,
-        reason: status === 'present' ? null : reason
+        reason: (status === 'absent' || status === 'excused') ? reason : null,
+        arrivalTime: (status === 'en_retard' || status === 'present') ? arrivalTime : null
       });
     } finally {
       setSaving(prev => ({ ...prev, [memberId]: false }));
@@ -54,6 +69,28 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
       ...prev,
       [memberId]: value
     }));
+  };
+
+  const handleArrivalTimeChange = (memberId, value) => {
+    setArrivalTimes(prev => ({
+      ...prev,
+      [memberId]: value
+    }));
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'present':
+        return 'bg-green-600 text-white';
+      case 'absent':
+        return 'bg-red-600 text-white';
+      case 'excused':
+        return 'bg-yellow-600 text-white';
+      case 'en_retard':
+        return 'bg-orange-600 text-white';
+      default:
+        return 'bg-gray-700 text-gray-400';
+    }
   };
 
   return (
@@ -71,7 +108,7 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
               Statut
             </th>
             <th className="text-left py-4 px-4 text-gray-400 font-semibold text-sm">
-              Motif
+              Détails
             </th>
           </tr>
         </thead>
@@ -82,6 +119,8 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
             const status = getStatus(member._id);
             const storedReason = getReason(member._id);
             const reason = reasons[member._id] ?? storedReason;
+            const storedArrivalTime = getArrivalTime(member._id);
+            const arrivalTime = arrivalTimes[member._id] ?? storedArrivalTime;
             const isLoading = saving[member._id];
 
             return (
@@ -107,7 +146,7 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
                 </td>
 
                 <td className="py-4 px-4">
-                  <div className="flex justify-center gap-2">
+                  <div className="flex justify-center gap-2 flex-wrap">
                     <button
                       onClick={() => handleMark(member._id, 'present')}
                       disabled={isLoading}
@@ -118,6 +157,17 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
                       } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       ✓ Présent
+                    </button>
+                    <button
+                      onClick={() => handleMark(member._id, 'en_retard')}
+                      disabled={isLoading}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition whitespace-nowrap ${
+                        status === 'en_retard'
+                          ? 'bg-orange-600 text-white'
+                          : 'bg-gray-700 text-gray-400 hover:bg-orange-600/20'
+                      } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      ⏰ En retard
                     </button>
                     <button
                       onClick={() => handleMark(member._id, 'absent')}
@@ -134,6 +184,7 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
                 </td>
 
                 <td className="py-4 px-4">
+                  {/* Affiche les champs selon le statut */}
                   {status === 'absent' || status === 'excused' ? (
                     <div className="flex gap-2">
                       <input
@@ -155,17 +206,5 @@ const AttendanceTable = ({ members = [], attendance = [], onMark }) => {
                         </button>
                       )}
                     </div>
-                  ) : (
-                    <span className="text-gray-500 text-sm">-</span>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
-export default AttendanceTable;
+                  ) : status === 'en_retard' ? (
+           
