@@ -22,7 +22,7 @@ const MONTHS = [
 
 const AMOUNT = 3000;
 
-const Contributions = () => {
+const Cotisations = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [contributions, setContributions] = useState([]);
   const [stats, setStats] = useState(null);
@@ -34,17 +34,18 @@ const Contributions = () => {
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1;
+  const mois = `${year}-${String(month).padStart(2, '0')}`;
 
   useEffect(() => {
     fetchData();
-  }, [year, month]);
+  }, [mois]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const [contribRes, statsRes] = await Promise.all([
-        contributionsAPI.getByMonth(year, month),
-        contributionsAPI.getStats(year)
+        cotisationsAPI.getByMonth(mois),
+        cotisationsAPI.getStats(mois)
       ]);
       setContributions(contribRes.data);
       setStats(statsRes.data);
@@ -63,16 +64,11 @@ const Contributions = () => {
     setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
-  const handlePayment = async (memberId) => {
-    setSaving(prev => ({ ...prev, [memberId]: true }));
+  const handlePayment = async (cotisationId) => {
+    setSaving(prev => ({ ...prev, [cotisationId]: true }));
 
     try {
-      await contributionsAPI.pay({ 
-        memberId, 
-        year, 
-        month, 
-        paymentMethod 
-      });
+      await cotisationsAPI.markAsPaid(cotisationId, { paymentMethod });
       await fetchData();
       setShowPaymentModal(null);
       setPaymentMethod('cash');
@@ -80,32 +76,32 @@ const Contributions = () => {
       console.error('❌ Error:', error);
       alert('Erreur lors de l\'enregistrement');
     } finally {
-      setSaving(prev => ({ ...prev, [memberId]: false }));
+      setSaving(prev => ({ ...prev, [cotisationId]: false }));
     }
   };
 
-  const handleCancelPayment = async (memberId) => {
+  const handleCancelPayment = async (cotisationId) => {
     if (!confirm('Annuler ce paiement ?')) return;
     
-    setSaving(prev => ({ ...prev, [memberId]: true }));
+    setSaving(prev => ({ ...prev, [cotisationId]: true }));
 
     try {
-      await contributionsAPI.cancel({ memberId, year, month });
+      await cotisationsAPI.update(cotisationId, { statut: 'non_paye', paidAt: null });
       await fetchData();
     } catch (error) {
       console.error('❌ Error:', error);
       alert('Erreur lors de l\'annulation');
     } finally {
-      setSaving(prev => ({ ...prev, [memberId]: false }));
+      setSaving(prev => ({ ...prev, [cotisationId]: false }));
     }
   };
 
   const handleDownloadReceipt = (contrib) => {
     generateReceipt({
-      member: contrib.member,
+      member: contrib.membre,
       year,
       month,
-      amount: contrib.amount,
+      amount: contrib.montant,
       paidAt: contrib.paidAt,
       paymentMethod: contrib.paymentMethod
     });
@@ -115,8 +111,8 @@ const Contributions = () => {
     generateMonthlyReport(contributions, year, month, stats);
   };
 
-  const paidCount = contributions.filter(c => c.isPaid).length;
-  const unpaidCount = contributions.filter(c => !c.isPaid).length;
+  const paidCount = contributions.filter(c => c.statut === 'paye').length;
+  const unpaidCount = contributions.filter(c => c.statut !== 'paye').length;
   const monthTotal = paidCount * AMOUNT;
 
   return (
@@ -221,17 +217,13 @@ const Contributions = () => {
         <div className="bg-gray-800 border border-gray-700 rounded-xl p-4">
           <div className="flex justify-between text-sm mb-2">
             <span className="text-gray-400">Progression annuelle</span>
-            <span className="text-white font-medium">{stats.percentage}%</span>
+            <span className="text-white font-medium">{stats.percentage || 0}%</span>
           </div>
           <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
             <div 
               className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 transition-all duration-500"
-              style={{ width: `${stats.percentage}%` }}
+              style={{ width: `${stats.percentage || 0}%` }}
             />
-          </div>
-          <div className="flex justify-between text-xs mt-2 text-gray-500">
-            <span>{stats.totalCollected?.toLocaleString()} Ar collectés</span>
-            <span>{stats.totalExpected?.toLocaleString()} Ar attendus</span>
           </div>
         </div>
       )}
@@ -242,63 +234,44 @@ const Contributions = () => {
           <div className="p-6 text-center text-gray-400">Chargement...</div>
         ) : contributions.length === 0 ? (
           <div className="p-6 text-center text-gray-400">
-            Aucun membre actif trouvé
+            Aucune cotisation pour ce mois
           </div>
         ) : (
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-700 bg-gray-900">
-                <th className="text-left py-4 px-4 text-gray-400 font-semibold text-sm">
-                  Membre
-                </th>
-                <th className="text-left py-4 px-4 text-gray-400 font-semibold text-sm">
-                  Rôle
-                </th>
-                <th className="text-center py-4 px-4 text-gray-400 font-semibold text-sm">
-                  Montant
-                </th>
-                <th className="text-center py-4 px-4 text-gray-400 font-semibold text-sm">
-                  Statut
-                </th>
-                <th className="text-center py-4 px-4 text-gray-400 font-semibold text-sm">
-                  Actions
-                </th>
+                <th className="text-left py-4 px-4 text-gray-400 font-semibold text-sm">Membre</th>
+                <th className="text-left py-4 px-4 text-gray-400 font-semibold text-sm">Rôle</th>
+                <th className="text-center py-4 px-4 text-gray-400 font-semibold text-sm">Montant</th>
+                <th className="text-center py-4 px-4 text-gray-400 font-semibold text-sm">Statut</th>
+                <th className="text-center py-4 px-4 text-gray-400 font-semibold text-sm">Actions</th>
               </tr>
             </thead>
             <tbody>
               {contributions.map((contrib) => {
-                const isLoading = saving[contrib.member._id];
+                const isLoading = saving[contrib._id];
+                const isPaid = contrib.statut === 'paye';
                 
                 return (
-                  <tr 
-                    key={contrib.member._id} 
-                    className="border-b border-gray-800 hover:bg-gray-900/50"
-                  >
+                  <tr key={contrib._id} className="border-b border-gray-800 hover:bg-gray-900/50">
                     <td className="py-4 px-4">
                       <span className="font-medium text-white text-sm">
-                        {contrib.member.firstName} {contrib.member.lastName}
+                        {contrib.membre?.firstName} {contrib.membre?.lastName}
                       </span>
                     </td>
                     
                     <td className="py-4 px-4 text-sm text-gray-400">
-                      <div>
-                        <p>{contrib.member.role || 'N/A'}</p>
-                        {contrib.member.instrument && (
-                          <p className="text-xs text-gray-500">
-                            {contrib.member.instrument}
-                          </p>
-                        )}
-                      </div>
+                      {contrib.membre?.role || 'N/A'}
                     </td>
                     
                     <td className="py-4 px-4 text-center">
                       <span className="text-white font-medium">
-                        {AMOUNT.toLocaleString()} Ar
+                        {(contrib.montant || AMOUNT).toLocaleString()} Ar
                       </span>
                     </td>
                     
                     <td className="py-4 px-4 text-center">
-                      {contrib.isPaid ? (
+                      {isPaid ? (
                         <div>
                           <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-600/20 text-green-500 rounded-full text-sm">
                             <Check className="w-4 h-4" />
@@ -320,7 +293,7 @@ const Contributions = () => {
                     
                     <td className="py-4 px-4">
                       <div className="flex items-center justify-center gap-2">
-                        {contrib.isPaid ? (
+                        {isPaid ? (
                           <>
                             <button
                               onClick={() => handleDownloadReceipt(contrib)}
@@ -330,7 +303,7 @@ const Contributions = () => {
                               <Download className="w-4 h-4 text-gray-300" />
                             </button>
                             <button
-                              onClick={() => handleCancelPayment(contrib.member._id)}
+                              onClick={() => handleCancelPayment(contrib._id)}
                               disabled={isLoading}
                               className="p-2 bg-gray-700 hover:bg-red-600/20 rounded-lg transition"
                               title="Annuler le paiement"
@@ -340,7 +313,7 @@ const Contributions = () => {
                           </>
                         ) : (
                           <button
-                            onClick={() => setShowPaymentModal(contrib.member._id)}
+                            onClick={() => setShowPaymentModal(contrib._id)}
                             disabled={isLoading}
                             className={`px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white text-sm font-medium transition ${
                               isLoading ? 'opacity-50 cursor-not-allowed' : ''
@@ -350,7 +323,7 @@ const Contributions = () => {
                           </button>
                         )}
                         <button
-                          onClick={() => setSelectedMember(contrib.member)}
+                          onClick={() => setSelectedMember(contrib.membre)}
                           className="p-2 bg-gray-700 hover:bg-indigo-600/20 rounded-lg transition"
                           title="Voir l'historique"
                         >
@@ -425,4 +398,4 @@ const Contributions = () => {
   );
 };
 
-export default Contributions;
+export default Cotisations;
