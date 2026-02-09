@@ -46,6 +46,14 @@ export const membersAPI = {
   toggleStatus: (id) => api.patch(`/members/${id}/toggle-status`)
 };
 
+export const cotisationsAPI = {
+  generate: (mois) => api.post('/cotisations/generate', { mois }),
+  getByMonth: (mois) => api.get(`/cotisations/month/${mois}`),
+  getStats: (mois) => api.get(`/cotisations/stats/${mois}`),
+  markAsPaid: (id, data) => api.patch(`/cotisations/${id}/pay`, data),
+  update: (id, data) => api.patch(`/cotisations/${id}`, data)
+};
+
 // Attendance
 export const attendanceAPI = {
   getByDate: (date) => api.get('/attendance', { params: { date } }),
