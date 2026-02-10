@@ -371,7 +371,7 @@ const presencePieData = [
                   </div>
                 </div>
                 <p className="text-2xl font-bold text-white">{stats?.totalPresences || 0}</p>
-                <p className="text-sm text-neutral-500">répétitions</p>
+                <p className="text-sm text-neutral-500">Événements</p>
               </div>
             </div>
 
