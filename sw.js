@@ -1,5 +1,5 @@
-const CACHE_NAME = "worship-cache-v1";
-const OFFLINE_URL = "/";
+const CACHE_NAME = "worship-cache-v2";
+const OFFLINE_PAGE = "/offline.html";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -8,6 +8,7 @@ self.addEventListener("install", (event) => {
         "/",
         "/index.html",
         "/manifest.json",
+        "/offline.html",
         "/icon-192.png",
         "/icon-512.png"
       ])
@@ -30,10 +31,8 @@ self.addEventListener("fetch", (event) => {
         });
         return response;
       })
-      .catch(() =>
-        caches.match(event.request).then(
-          (res) => res || caches.match(OFFLINE_URL)
-        )
-      )
+      .catch(() => caches.match(event.request).then(
+        res => res || caches.match(OFFLINE_PAGE)
+      ))
   );
 });
