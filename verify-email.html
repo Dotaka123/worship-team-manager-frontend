@@ -453,7 +453,13 @@
             }
 
             try {
-                const response = await fetch(`${API_URL}/auth/verify-email/${token}`);
+                let response = await fetch(`${API_URL}/auth/verify-email/${token}`);
+
+                // Compatibilité avec des backends qui attendent ?token=<token>
+                if (!response.ok) {
+                    response = await fetch(`${API_URL}/auth/verify-email?token=${encodeURIComponent(token)}`);
+                }
+
                 const data = await response.json();
 
                 if (response.ok) {
