@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: worship-team-manager-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      # Route spécifique pour la vérification d'email
+      - type: rewrite
+        source: /verify-email/*
+        destination: /verify-email.html
+      # Route par défaut pour React Router
+      - type: rewrite
+        source: /*
+        destination: /index.html
