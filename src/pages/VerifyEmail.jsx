@@ -51,8 +51,17 @@ const VerifyEmail = () => {
       }
 
       try {
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-        const response = await axios.get(`${API_URL}/auth/verify-email/${token}`);
+        const API_URL = import.meta.env.VITE_API_URL || 'https://worship-team-manager.onrender.com/api';
+
+        let response;
+        try {
+          response = await axios.get(`${API_URL}/auth/verify-email/${token}`);
+        } catch (pathError) {
+          // Compatibilité avec des backends qui attendent ?token=<token>
+          response = await axios.get(`${API_URL}/auth/verify-email`, {
+            params: { token }
+          });
+        }
         
         setStatus('success');
         setMessage(response.data.message);
