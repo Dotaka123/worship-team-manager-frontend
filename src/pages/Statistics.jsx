@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { membersAPI, attendanceAPI } from '../services/api';
 import { Trophy, TrendingUp, Calendar, Clock, UserX, CheckCircle } from 'lucide-react';
@@ -129,7 +129,7 @@ const Statistics = () => {
       });
   };
 
-  const memberStats = calculateMemberStats();
+  const memberStats = useMemo(() => calculateMemberStats(), [members, attendance, period, customStartDate, customEndDate, sortBy]);
 
   const getMedalBadge = (index) => {
     if (index === 0) return { symbol: '1', cls: 'bg-amber-500/20 text-amber-300 border border-amber-500/30', size: 'text-xs font-bold' };
@@ -315,19 +315,19 @@ const Statistics = () => {
                       {member.photo ? (
                         <img
                           src={member.photo}
-                          alt={`${member.firstName} ${member.lastName}`}
+                          alt={member.pseudo || `${member.firstName} ${member.lastName}`}
                           className="w-10 h-10 rounded-full object-cover border-2 border-gray-700"
                         />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm border-2 border-gray-700">
-                          {member.firstName?.[0]}{member.lastName?.[0]}
+                          {member.pseudo?.[0]?.toUpperCase()}{member.pseudo?.[1]?.toUpperCase() || member.lastName?.[0]}
                         </div>
                       )}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-white text-sm truncate">
-                        {member.firstName} {member.lastName}
+                        {member.pseudo}
                       </h3>
                       <p className="text-xs text-gray-400 truncate">
                         {member.role || 'Membre'}
@@ -389,19 +389,19 @@ const Statistics = () => {
                       {member.photo ? (
                         <img
                           src={member.photo}
-                          alt={`${member.firstName} ${member.lastName}`}
+                          alt={member.pseudo || `${member.firstName} ${member.lastName}`}
                           className="w-12 h-12 rounded-full object-cover border-2 border-gray-700"
                         />
                       ) : (
                         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg border-2 border-gray-700">
-                          {member.firstName?.[0]}{member.lastName?.[0]}
+                          {member.pseudo?.[0]?.toUpperCase()}{member.pseudo?.[1]?.toUpperCase() || member.lastName?.[0]}
                         </div>
                       )}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-white truncate">
-                        {member.firstName} {member.lastName}
+                        {member.pseudo}
                       </h3>
                       <p className="text-sm text-gray-400 truncate">
                         {member.role || 'Membre'} {member.instrument && `• ${member.instrument}`}

@@ -74,7 +74,7 @@ const Notifications = () => {
             type: 'birthday-today',
             priority: 'high',
             member,
-            message: `Anniversaire de ${member.firstName} ${member.lastName} aujourd'hui !`,
+            message: `Anniversaire de ${member.pseudo} aujourd'hui !`,
             timestamp: new Date(),
           });
         } else {
@@ -109,7 +109,7 @@ const Notifications = () => {
               priority: 'high',
               member,
               count,
-              message: `${member.firstName} ${member.lastName} — ${count} absences sans motif (30 j)`,
+              message: `${member.pseudo} — ${count} absences sans motif (30 j)`,
               timestamp: new Date(),
             });
           }
@@ -131,7 +131,7 @@ const Notifications = () => {
             member: c.membre,
             amount: c.montant,
             month: lastMonthStr,
-            message: `${c.membre.firstName} ${c.membre.lastName} — cotisation impayée (${c.montant?.toLocaleString()} Ar)`,
+            message: `${c.membre.pseudo} — cotisation impayée (${c.montant?.toLocaleString()} Ar)`,
             timestamp: new Date(),
           }));
       } catch {}

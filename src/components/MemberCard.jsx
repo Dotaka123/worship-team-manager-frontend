@@ -57,7 +57,9 @@ const getRoleLabel = (member) => {
 const MemberCard = ({ member, onClick, onEdit, onDelete }) => {
   const g = genderConfig[member.gender] || genderConfig.homme;
   const s = statusConfig[member.status] || statusConfig.inactif;
-  const initials = `${member.firstName?.charAt(0) || ''}${member.lastName?.charAt(0) || ''}`.toUpperCase();
+  const initials = member.pseudo 
+    ? `${member.pseudo[0]?.toUpperCase() || ''}${member.pseudo[1]?.toUpperCase() || member.lastName?.charAt(0) || ''}` 
+    : `${member.firstName?.charAt(0) || ''}${member.lastName?.charAt(0) || ''}`.toUpperCase();
 
   return (
     <div
@@ -73,7 +75,7 @@ const MemberCard = ({ member, onClick, onEdit, onDelete }) => {
             {member.photo ? (
               <img
                 src={member.photo}
-                alt={`${member.firstName} ${member.lastName}`}
+                alt={member.pseudo || `${member.firstName} ${member.lastName}`}
                 className={`w-10 h-10 sm:w-11 sm:h-11 rounded-lg object-cover ring-1 ${g.border}`}
               />
             ) : (
@@ -88,7 +90,7 @@ const MemberCard = ({ member, onClick, onEdit, onDelete }) => {
           {/* Nom + badge statut */}
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-semibold text-neutral-100 truncate leading-tight">
-              {member.firstName} {member.lastName}
+              {member.pseudo}
             </h3>
             <span
               className={`inline-flex items-center gap-1.5 mt-1 px-2 py-0.5 text-xs font-medium rounded-full border ${s.cls}`}

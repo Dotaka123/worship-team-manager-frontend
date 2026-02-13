@@ -123,7 +123,7 @@ const Cotisations = () => {
     doc.text(`Attendu: ${totalAttendu.toLocaleString()} Ar`, 100, 52);
     
     const tableData = cotisations.map(c => [
-      `${c.membre?.firstName || ''} ${c.membre?.lastName || ''}`,
+      `${c.membre?.pseudo || ''}`,
       c.membre?.role || '-',
       `${c.montant.toLocaleString()} Ar`,
       c.statut === 'paye' ? 'Payé' : 'Non payé',
@@ -161,7 +161,7 @@ const Cotisations = () => {
       const totalAttendu = cotisations.reduce((sum, c) => sum + c.montant, 0);
 
       const rows = cotisations.map(c => ({
-        'Membre': `${c.membre?.firstName || ''} ${c.membre?.lastName || ''}`.trim(),
+        'Membre': `${c.membre?.pseudo || ''}`.trim(),
         'Rôle': c.membre?.role || '-',
         'Instrument': c.membre?.instrument || '-',
         'Montant (Ar)': c.montant,
@@ -342,7 +342,7 @@ const Cotisations = () => {
                 {cotisations.map((c) => (
                   <tr key={c._id} className="hover:bg-gray-700/50">
                     <td className="px-6 py-4">
-                      <p className="font-medium text-white">{c.membre?.firstName} {c.membre?.lastName}</p>
+                      <p className="font-medium text-white">{c.membre?.pseudo}</p>
                       <p className="text-sm text-gray-400">{c.membre?.instrument || '-'}</p>
                     </td>
                     <td className="px-6 py-4 text-gray-300">{c.membre?.role || '-'}</td>
@@ -387,7 +387,7 @@ const Cotisations = () => {
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-white truncate">
-                      {c.membre?.firstName} {c.membre?.lastName}
+                      {c.membre?.pseudo}
                     </p>
                     <p className="text-sm text-gray-400">{c.membre?.role || '-'}</p>
                     {c.membre?.instrument && (

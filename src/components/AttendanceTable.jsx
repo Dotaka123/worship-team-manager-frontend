@@ -171,7 +171,7 @@ const AttendanceTable = ({ members = [], attendance = [], onMark, onClear }) => 
                 <td className="py-4 px-4">
                   <div>
                     <span className="font-medium text-white text-sm">
-                      {member.firstName} {member.lastName}
+                      {member.pseudo}
                     </span>
                     {member.email && (
                       <p className="text-gray-500 text-xs mt-1">{member.email}</p>

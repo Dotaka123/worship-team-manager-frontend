@@ -95,7 +95,7 @@ const MemberContributionHistory = ({ member, onClose }) => {
               Historique des cotisations
             </h2>
             <p className="text-sm text-gray-400">
-              {member.firstName} {member.lastName}
+              {member.pseudo}
             </p>
           </div>
           <button

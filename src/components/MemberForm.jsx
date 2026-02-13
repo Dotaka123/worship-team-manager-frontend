@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, User, Mail, Phone, Music, Mic2, Calendar, FileText, Check, Cake, MapPin } from 'lucide-react';
+import { X, User, Mail, Phone, Music, Mic2, Calendar, FileText, Check, Cake, MapPin, AtSign } from 'lucide-react';
 
 const MemberForm = ({ member, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    pseudo: '',
     gender: 'homme',
     email: '',
     phone: '',
@@ -36,6 +37,7 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
       setFormData({
         firstName: member.firstName || '',
         lastName: member.lastName || '',
+        pseudo: member.pseudo || '',
         gender: member.gender || 'homme',
         email: member.email || '',
         phone: member.phone || '',
@@ -113,6 +115,9 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
     }
     if (!formData.lastName.trim()) {
       newErrors.lastName = 'Le nom est requis';
+    }
+    if (!formData.pseudo.trim()) {
+      newErrors.pseudo = 'Le pseudo est requis';
     }
 
     return newErrors;
@@ -251,6 +256,29 @@ const MemberForm = ({ member, onSubmit, onClose }) => {
                 <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
               )}
             </div>
+          </div>
+
+          {/* Pseudo */}
+          <div>
+            <label className={labelBase}>
+              <AtSign className="w-3.5 h-3.5" />
+              Pseudo <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="pseudo"
+              value={formData.pseudo}
+              onChange={handleChange}
+              maxLength={20}
+              className={`${inputBase} ${errors.pseudo ? errorClass : ''}`}
+              placeholder="Jean_D ou JD23 (max 20 caractères)"
+            />
+            {errors.pseudo && (
+              <p className="text-xs text-red-400 mt-1">{errors.pseudo}</p>
+            )}
+            <p className="text-xs text-neutral-500 mt-1">
+              {formData.pseudo.length} / 20 caractères
+            </p>
           </div>
 
           {/* Sexe */}
