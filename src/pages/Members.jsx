@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Plus, Users, Search, Loader2, Filter, SlidersHorizontal, X } from 'lucide-react';
+import { Plus, Users, Loader2, Filter, SlidersHorizontal, X, BarChart3 } from 'lucide-react';
 import api from '../services/api';
 import MemberCard from '../components/MemberCard';
 import MemberForm from '../components/MemberForm';
@@ -13,7 +13,6 @@ const Members = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   
@@ -97,12 +96,6 @@ const Members = () => {
 
   const filteredMembers = members.filter(member => {
     const matchesStatus = filterStatus === 'all' || member.status === filterStatus;
-    const matchesSearch = (
-      member.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.lastName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.role?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
     
     // Filtre de genre
     const matchesGender = genderFilter === 'all' || member.gender === genderFilter;
@@ -127,7 +120,7 @@ const Members = () => {
       }
     }
     
-    return matchesStatus && matchesSearch && matchesGender && matchesRole && matchesAge;
+    return matchesStatus && matchesGender && matchesRole && matchesAge;
   });
 
   const clearAllFilters = () => {
@@ -135,7 +128,6 @@ const Members = () => {
     setGenderFilter('all');
     setRoleFilter('all');
     setAgeFilter('all');
-    setSearchQuery('');
   };
 
   const statusCount = {
@@ -177,18 +169,17 @@ const Members = () => {
 
         {/* Barre d'outils - Responsive */}
         <div className="space-y-3 sm:space-y-4 mb-6">
-          {/* Ligne 1: Recherche + Boutons */}
+          {/* Ligne 1: Boutons */}
           <div className="flex gap-2 sm:gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Rechercher..."
-                className="w-full pl-10 pr-4 py-2 bg-neutral-900 border border-neutral-800 rounded-md text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/30 transition-colors"
-              />
-            </div>
+            {/* Bouton Stats complètes */}
+            <button
+              onClick={() => navigate('/statistics')}
+              className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-neutral-900 border border-neutral-800 text-neutral-300 text-sm font-medium rounded-md hover:bg-neutral-800 hover:text-white active:bg-neutral-700 transition-colors"
+            >
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline">Voir stats complètes</span>
+              <span className="sm:hidden">Stats</span>
+            </button>
 
             {/* Bouton Toggle Filtres avancés */}
             <button
@@ -214,7 +205,7 @@ const Members = () => {
 
             <button
               onClick={() => setShowForm(true)}
-              className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 active:bg-indigo-800 transition-colors shrink-0"
+              className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 active:bg-indigo-800 transition-colors shrink-0 ml-auto"
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Nouveau</span>
@@ -354,10 +345,10 @@ const Members = () => {
           <div className="text-center py-12 sm:py-16 bg-neutral-900/50 border border-dashed border-neutral-800 rounded-lg">
             <Users className="w-8 h-8 sm:w-10 sm:h-10 mx-auto text-neutral-600 mb-3" />
             <p className="text-sm font-medium text-neutral-400 mb-1">
-              {searchQuery ? 'Aucun membre ne correspond' : 'Aucun membre'}
+              Aucun membre ne correspond aux filtres
             </p>
             <p className="text-sm text-neutral-500">
-              {searchQuery ? 'Modifiez votre recherche' : 'Ajoutez votre premier membre'}
+              Modifiez vos filtres ou ajoutez un nouveau membre
             </p>
           </div>
         ) : (
