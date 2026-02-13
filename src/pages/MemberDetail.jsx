@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, User, Phone, Mail, MapPin, Camera, Loader2, 
   Gift, CheckCircle, XCircle, Music, Pencil, Cake,
-  UserCheck, UserX, Clock, TrendingUp
+  UserCheck, UserX, Clock, TrendingUp, BarChart3
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import api from '../services/api';
@@ -142,13 +142,23 @@ const presencePieData = [
       <div className="max-w-6xl mx-auto px-4 py-8">
         
         {/* Header */}
-        <button
-          onClick={() => navigate('/members')}
-          className="flex items-center gap-2 text-neutral-400 hover:text-neutral-200 mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span className="text-sm">Retour aux membres</span>
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between mb-6">
+          <button
+            onClick={() => navigate('/members')}
+            className="flex items-center gap-2 text-neutral-400 hover:text-neutral-200 transition-colors w-fit"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm">Retour aux membres</span>
+          </button>
+          
+          <button
+            onClick={() => navigate('/statistics')}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 w-fit"
+          >
+            <BarChart3 className="w-4 h-4" />
+            <span>Voir stats complètes</span>
+          </button>
+        </div>
 
         {editing ? (
           <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">

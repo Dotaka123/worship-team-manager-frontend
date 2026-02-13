@@ -191,48 +191,48 @@ const AdvancedStatistics = () => {
       <div className="max-w-7xl mx-auto space-y-6">
       {/* Objectifs du mois */}
       {goals && (
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg p-6 text-white border border-indigo-500/20">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg p-4 sm:p-6 text-white border border-indigo-500/20">
           <div className="flex items-center gap-2 mb-4">
-            <Target size={24} />
-            <h2 className="text-xl font-bold">Objectif du mois</h2>
+            <Target size={20} className="sm:w-6 sm:h-6" />
+            <h2 className="text-lg sm:text-xl font-bold">Objectif du mois</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
             <div>
-              <div className="text-sm opacity-90">Objectif</div>
-              <div className="text-2xl font-bold">
+              <div className="text-xs sm:text-sm opacity-90">Objectif</div>
+              <div className="text-xl sm:text-2xl font-bold">
                 {goals.target.amount.toLocaleString()} Ar
               </div>
-              <div className="text-sm opacity-75">
+              <div className="text-xs sm:text-sm opacity-75">
                 {goals.target.members} membres actifs
               </div>
             </div>
 
             <div>
-              <div className="text-sm opacity-90">Collecté</div>
-              <div className="text-2xl font-bold">
+              <div className="text-xs sm:text-sm opacity-90">Collecté</div>
+              <div className="text-xl sm:text-2xl font-bold">
                 {goals.current.collected.toLocaleString()} Ar
               </div>
-              <div className="text-sm opacity-75">
+              <div className="text-xs sm:text-sm opacity-75">
                 {goals.current.paidCount} payés
               </div>
             </div>
 
-            <div>
-              <div className="text-sm opacity-90">Progression</div>
-              <div className="text-3xl font-bold">
+            <div className="sm:col-span-2 md:col-span-1">
+              <div className="text-xs sm:text-sm opacity-90">Progression</div>
+              <div className="text-2xl sm:text-3xl font-bold">
                 {goals.progress.percentage}%
               </div>
-              <div className="w-full bg-white/20 rounded-full h-3 mt-2">
+              <div className="w-full bg-white/20 rounded-full h-2.5 sm:h-3 mt-2">
                 <div
-                  className="bg-white h-3 rounded-full transition-all duration-500"
+                  className="bg-white h-2.5 sm:h-3 rounded-full transition-all duration-500"
                   style={{ width: `${Math.min(goals.progress.percentage, 100)}%` }}
                 ></div>
               </div>
             </div>
           </div>
 
-          <div className="mt-4 text-sm opacity-90">
+          <div className="mt-4 text-xs sm:text-sm opacity-90">
             Reste à collecter: {goals.progress.remaining.toLocaleString()} Ar
             ({goals.progress.remainingMembers} membre{goals.progress.remainingMembers > 1 ? 's' : ''})
           </div>
@@ -241,52 +241,52 @@ const AdvancedStatistics = () => {
 
       {/* Insights financiers */}
       {financialInsights && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-neutral-400">Moyenne mensuelle</p>
-                <p className="text-2xl font-bold text-white mt-1">
+                <p className="text-xs sm:text-sm text-neutral-400">Moyenne mensuelle</p>
+                <p className="text-xl sm:text-2xl font-bold text-white mt-1">
                   {Math.round(financialInsights.averages.avgPaye).toLocaleString()} Ar
                 </p>
               </div>
-              <div className="p-3 bg-green-600/20 rounded-full">
-                <DollarSign className="text-green-400" size={24} />
+              <div className="p-2 sm:p-3 bg-green-600/20 rounded-full">
+                <DollarSign className="text-green-400 w-5 h-5 sm:w-6 sm:h-6" />
               </div>
             </div>
-            <div className="mt-2 flex items-center text-sm">
+            <div className="mt-2 flex items-center text-xs sm:text-sm">
               <TrendingUp className="text-green-400 mr-1" size={16} />
               <span className="text-green-400">Sur 6 mois</span>
             </div>
           </div>
 
-          <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-6">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-neutral-400">Meilleurs payeurs</p>
-                <p className="text-2xl font-bold text-white mt-1">
+                <p className="text-xs sm:text-sm text-neutral-400">Meilleurs payeurs</p>
+                <p className="text-xl sm:text-2xl font-bold text-white mt-1">
                   {financialInsights.bestPayers.length}
                 </p>
               </div>
-              <div className="p-3 bg-indigo-600/20 rounded-full">
-                <Users className="text-indigo-400" size={24} />
+              <div className="p-2 sm:p-3 bg-indigo-600/20 rounded-full">
+                <Users className="text-indigo-400 w-5 h-5 sm:w-6 sm:h-6" />
               </div>
             </div>
-            <div className="mt-2 text-sm text-neutral-400">
+            <div className="mt-2 text-xs sm:text-sm text-neutral-400">
               Toujours à jour
             </div>
           </div>
 
-          <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-6">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-4 sm:p-6 sm:col-span-2 md:col-span-1">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-neutral-400">Tendance</p>
-                <p className="text-2xl font-bold text-white mt-1">
+                <p className="text-xs sm:text-sm text-neutral-400">Tendance</p>
+                <p className="text-xl sm:text-2xl font-bold text-white mt-1">
                   {financialInsights.trend.length > 0 ? 'Stable' : 'N/A'}
                 </p>
               </div>
-              <div className="p-3 bg-purple-600/20 rounded-full">
-                <Calendar className="text-purple-400" size={24} />
+              <div className="p-2 sm:p-3 bg-purple-600/20 rounded-full">
+                <Calendar className="text-purple-400 w-5 h-5 sm:w-6 sm:h-6" />
               </div>
             </div>
           </div>
@@ -294,22 +294,22 @@ const AdvancedStatistics = () => {
       )}
 
       {/* Graphiques principaux */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Évolution des cotisations */}
-        <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-semibold mb-4 text-white">Évolution des cotisations</h3>
+        <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-white">Évolution des cotisations</h3>
           {cotisationsChartData && (
-            <div className="h-64">
+            <div className="h-56 sm:h-64">
               <Line data={cotisationsChartData} options={chartOptions} />
             </div>
           )}
         </div>
 
         {/* Évolution des présences */}
-        <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-semibold mb-4 text-white">Taux de présence (30 jours)</h3>
+        <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-white">Taux de présence (30 jours)</h3>
           {attendanceChartData && (
-            <div className="h-64">
+            <div className="h-56 sm:h-64">
               <Line data={attendanceChartData} options={chartOptions} />
             </div>
           )}
@@ -317,14 +317,14 @@ const AdvancedStatistics = () => {
       </div>
 
       {/* Top performers et répartition */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Top performers */}
-        <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-semibold mb-4 text-white">🏆 Top 5 Présences</h3>
-          <div className="space-y-3">
+        <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-white">🏆 Top 5 Présences</h3>
+          <div className="space-y-2 sm:space-y-3">
             {topPerformers.map((performer, index) => (
-              <div key={performer.member._id} className="flex items-center gap-3">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
+              <div key={performer.member._id} className="flex items-center gap-2 sm:gap-3">
+                <div className={`flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full text-xs sm:text-sm ${
                   index === 0 ? 'bg-yellow-600/20 text-yellow-400' :
                   index === 1 ? 'bg-neutral-700 text-neutral-300' :
                   index === 2 ? 'bg-orange-600/20 text-orange-400' :
@@ -337,27 +337,27 @@ const AdvancedStatistics = () => {
                   <img
                     src={performer.member.photo}
                     alt={performer.member.pseudo}
-                    className="w-10 h-10 rounded-full object-cover"
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-indigo-600/20 flex items-center justify-center">
-                    <span className="text-indigo-400 font-semibold text-sm">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-600/20 flex items-center justify-center">
+                    <span className="text-indigo-400 font-semibold text-xs sm:text-sm">
                       {performer.member.firstName?.[0]}{performer.member.lastName?.[0]}
                     </span>
                   </div>
                 )}
 
-                <div className="flex-1">
-                  <div className="font-medium text-white">
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-white text-sm sm:text-base truncate">
                     {performer.member.firstName} {performer.member.lastName}
                   </div>
-                  <div className="text-sm text-neutral-400">
+                  <div className="text-xs sm:text-sm text-neutral-400 truncate">
                     {performer.member.role}
                   </div>
                 </div>
 
-                <div className="text-right">
-                  <div className="font-bold text-green-400">
+                <div className="text-right shrink-0">
+                  <div className="font-bold text-green-400 text-sm sm:text-base">
                     {performer.stats.tauxPresence}%
                   </div>
                   <div className="text-xs text-neutral-500">
@@ -370,17 +370,21 @@ const AdvancedStatistics = () => {
         </div>
 
         {/* Répartition par rôle */}
-        <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-semibold mb-4 text-white">Répartition par rôle</h3>
+        <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-white">Répartition par rôle</h3>
           {rolesChartData && (
-            <div className="h-64">
+            <div className="h-56 sm:h-64">
               <Doughnut data={rolesChartData} options={{
                 ...chartOptions,
                 plugins: {
                   legend: {
                     position: 'bottom',
                     labels: {
-                      color: '#d4d4d8'
+                      color: '#d4d4d8',
+                      padding: window.innerWidth < 640 ? 8 : 12,
+                      font: {
+                        size: window.innerWidth < 640 ? 10 : 12
+                      }
                     }
                   },
                   tooltip: {
