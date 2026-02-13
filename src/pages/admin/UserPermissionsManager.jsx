@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
 import api from '../services/api';
 
 const UserPermissionsManager = () => {
@@ -17,8 +16,8 @@ const UserPermissionsManager = () => {
       const response = await api.get('/users');
       setUsers(response.data.users);
     } catch (error) {
-      toast.error('Erreur lors du chargement des utilisateurs');
-      console.error(error);
+      console.error('Erreur lors du chargement des utilisateurs:', error);
+      alert('Erreur lors du chargement des utilisateurs');
     } finally {
       setLoading(false);
     }
@@ -45,12 +44,12 @@ const UserPermissionsManager = () => {
       ));
 
       const action = newCanEdit ? 'accordées' : 'retirées';
-      toast.success(`Permissions ${action} à ${user.name}`);
+      console.log(`✅ Permissions ${action} à ${user.name}`);
     } catch (error) {
       if (error.response?.status === 403) {
-        toast.error(error.response.data.message);
+        alert(error.response.data.message);
       } else {
-        toast.error('Erreur lors de la mise à jour des permissions');
+        alert('Erreur lors de la mise à jour des permissions');
       }
       console.error(error);
     } finally {
