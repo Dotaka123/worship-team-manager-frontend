@@ -13,6 +13,7 @@ import Notifications from './pages/Notifications';
 import Statistics from './pages/Statistics';
 import VerifyEmail from './pages/VerifyEmail';
 import ResendVerification from './pages/ResendVerification';
+import UserPermissionsManager from './pages/admin/UserPermissionsManager';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
             <Route path="cotisations" element={<Cotisations />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="statistics" element={<Statistics />} />
+            <Route path="admin/permissions" element={<UserPermissionsManager />} />
           </Route>
 
           {/* Redirection par défaut */}

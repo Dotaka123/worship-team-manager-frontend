@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   Menu, X, LogOut, Music4,
   LayoutDashboard, Users, CalendarCheck,
-  BarChart3, Wallet, ChevronDown
+  BarChart3, Wallet, ChevronDown, Shield
 } from 'lucide-react';
 import { useState } from 'react';
 import NotificationBell from './NotificationBell';
@@ -14,6 +14,10 @@ const navLinks = [
   { to: '/attendance',  label: 'Présences',    icon: CalendarCheck },
   { to: '/cotisations', label: 'Cotisations',  icon: Wallet },
   { to: '/statistics',  label: 'Statistiques', icon: BarChart3 },
+];
+
+const adminLinks = [
+  { to: '/admin/permissions', label: 'Permissions', icon: Shield }
 ];
 
 const Navbar = () => {
@@ -74,6 +78,34 @@ const Navbar = () => {
                 </Link>
               );
             })}
+            
+            {/* Liens Admin - visible seulement pour les admins */}
+            {user?.role === 'admin' && (
+              <>
+                <div className="w-px h-6 bg-neutral-800 mx-1" />
+                {adminLinks.map((link) => {
+                  const active = isActive(link);
+                  const Icon = link.icon;
+                  return (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 whitespace-nowrap ${
+                        active
+                          ? 'bg-purple-500/15 text-purple-300'
+                          : 'text-neutral-400 hover:text-neutral-100 hover:bg-neutral-800/70'
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      {link.label}
+                      {active && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-400 ml-0.5" />
+                      )}
+                    </Link>
+                  );
+                })}
+              </>
+            )}
           </div>
 
           {/* ── Desktop Right ── */}
@@ -144,6 +176,39 @@ const Navbar = () => {
                   </Link>
                 );
               })}
+
+              {/* Liens Admin - Mobile */}
+              {user?.role === 'admin' && (
+                <>
+                  <div className="my-2 border-t border-neutral-800" />
+                  <div className="px-3 py-1 text-xs text-neutral-500 font-medium uppercase tracking-wider">
+                    Administration
+                  </div>
+                  {adminLinks.map((link, index) => {
+                    const active = isActive(link);
+                    const Icon = link.icon;
+                    return (
+                      <Link
+                        key={link.to}
+                        to={link.to}
+                        onClick={() => setIsMenuOpen(false)}
+                        className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                          active
+                            ? 'bg-purple-500/15 text-purple-300'
+                            : 'text-neutral-400 hover:text-neutral-100 hover:bg-neutral-800/70'
+                        }`}
+                        style={{
+                          transitionDelay: isMenuOpen ? `${(navLinks.length + index) * 30}ms` : '0ms'
+                        }}
+                      >
+                        <Icon className="w-4 h-4" />
+                        {link.label}
+                        {active && <span className="w-1.5 h-1.5 rounded-full bg-purple-400 ml-auto" />}
+                      </Link>
+                    );
+                  })}
+                </>
+              )}
 
               <div className="mt-2 pt-2 border-t border-neutral-800 flex items-center justify-between px-3">
                 <div className="flex items-center gap-2">
