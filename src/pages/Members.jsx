@@ -173,7 +173,7 @@ const Members = () => {
           <div className="flex gap-2 sm:gap-4">
             {/* Bouton Stats complètes */}
             <button
-              onClick={() => navigate('/statistics')}
+              onClick={() => navigate('/stats-advanced')}
               className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 bg-neutral-900 border border-neutral-800 text-neutral-300 text-sm font-medium rounded-md hover:bg-neutral-800 hover:text-white active:bg-neutral-700 transition-colors"
             >
               <BarChart3 className="w-4 h-4" />
