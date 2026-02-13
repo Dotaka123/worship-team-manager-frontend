@@ -158,14 +158,14 @@ const Statistics = () => {
   }
 
   return (
-    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+    <div className="min-h-screen bg-neutral-950 p-4 md:p-6 space-y-4 md:space-y-6">
       {/* En-tête */}
       <div className="flex flex-col gap-2">
-        <h1 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+        <h1 className="text-xl md:text-2xl font-bold text-neutral-100 flex items-center gap-2">
           <Trophy className="w-6 h-6 md:w-7 md:h-7 text-yellow-400" />
           Statistiques
         </h1>
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-neutral-400">
           Classement des membres
         </p>
       </div>
@@ -316,20 +316,20 @@ const Statistics = () => {
                         <img
                           src={member.photo}
                           alt={member.pseudo || `${member.firstName} ${member.lastName}`}
-                          className="w-10 h-10 rounded-full object-cover border-2 border-gray-700"
+                          className="w-10 h-10 rounded-full object-cover border-2 border-neutral-700"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm border-2 border-gray-700">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm border-2 border-neutral-700">
                           {member.pseudo?.[0]?.toUpperCase()}{member.pseudo?.[1]?.toUpperCase() || member.lastName?.[0]}
                         </div>
                       )}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-white text-sm truncate">
+                      <h3 className="font-semibold text-neutral-100 text-sm truncate">
                         {member.pseudo}
                       </h3>
-                      <p className="text-xs text-gray-400 truncate">
+                      <p className="text-xs text-neutral-400 truncate">
                         {member.role || 'Membre'}
                       </p>
                     </div>
@@ -348,25 +348,25 @@ const Statistics = () => {
                       <div className="text-green-400 font-semibold text-sm">
                         {member.stats.present}
                       </div>
-                      <div className="text-xs text-gray-500">✓</div>
+                      <div className="text-xs text-neutral-500">✓</div>
                     </div>
                     <div className="text-center bg-neutral-800 rounded-lg p-2">
                       <div className="text-orange-400 font-semibold text-sm">
                         {member.stats.late}
                       </div>
-                      <div className="text-xs text-gray-500">⏰</div>
+                      <div className="text-xs text-neutral-500">⏰</div>
                     </div>
                     <div className="text-center bg-neutral-800 rounded-lg p-2">
                       <div className="text-red-400 font-semibold text-sm">
                         {member.stats.absent}
                       </div>
-                      <div className="text-xs text-gray-500">✗</div>
+                      <div className="text-xs text-neutral-500">✗</div>
                     </div>
                     <div className="text-center bg-neutral-800 rounded-lg p-2">
                       <div className="text-violet-400 font-semibold text-sm">
                         {member.stats.excused}
                       </div>
-                      <div className="text-xs text-gray-500">📝</div>
+                      <div className="text-xs text-neutral-500">📝</div>
                     </div>
                   </div>
                 </div>
@@ -390,20 +390,20 @@ const Statistics = () => {
                         <img
                           src={member.photo}
                           alt={member.pseudo || `${member.firstName} ${member.lastName}`}
-                          className="w-12 h-12 rounded-full object-cover border-2 border-gray-700"
+                          className="w-12 h-12 rounded-full object-cover border-2 border-neutral-700"
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg border-2 border-gray-700">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg border-2 border-neutral-700">
                           {member.pseudo?.[0]?.toUpperCase()}{member.pseudo?.[1]?.toUpperCase() || member.lastName?.[0]}
                         </div>
                       )}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-white truncate">
+                      <h3 className="font-semibold text-neutral-100 truncate">
                         {member.pseudo}
                       </h3>
-                      <p className="text-sm text-gray-400 truncate">
+                      <p className="text-sm text-neutral-400 truncate">
                         {member.role || 'Membre'} {member.instrument && `• ${member.instrument}`}
                       </p>
                     </div>
@@ -423,7 +423,7 @@ const Statistics = () => {
                           <CheckCircle className="w-4 h-4" />
                           {member.stats.present}
                         </div>
-                        <div className="text-xs text-gray-500">Présent</div>
+                        <div className="text-xs text-neutral-500">Présent</div>
                       </div>
 
                       <div className="text-center">
@@ -431,7 +431,7 @@ const Statistics = () => {
                           <Clock className="w-4 h-4" />
                           {member.stats.late}
                         </div>
-                        <div className="text-xs text-gray-500">Retard</div>
+                        <div className="text-xs text-neutral-500">Retard</div>
                       </div>
 
                       <div className="text-center">
@@ -439,22 +439,22 @@ const Statistics = () => {
                           <UserX className="w-4 h-4" />
                           {member.stats.absent}
                         </div>
-                        <div className="text-xs text-gray-500">Absent</div>
+                        <div className="text-xs text-neutral-500">Absent</div>
                       </div>
 
                       <div className="text-center">
                         <div className="flex items-center gap-1 text-violet-400 font-semibold">
                           📝 {member.stats.excused}
                         </div>
-                        <div className="text-xs text-gray-500">Excusé</div>
+                        <div className="text-xs text-neutral-500">Excusé</div>
                       </div>
                     </div>
 
-                    <div className="text-center px-3 py-1 bg-gray-700 rounded-lg">
-                      <div className="text-lg font-bold text-white">
+                    <div className="text-center px-3 py-1 bg-neutral-800 rounded-lg">
+                      <div className="text-lg font-bold text-neutral-100">
                         {member.stats.total}
                       </div>
-                      <div className="text-xs text-gray-400">Total</div>
+                      <div className="text-xs text-neutral-400">Total</div>
                     </div>
                   </div>
                 </div>

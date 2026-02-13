@@ -1,6 +1,6 @@
 import {
   Mail, Phone, Music, Users, Pencil, Trash2,
-  Calendar, MapPin, Cake, User, Zap, Drum, Volume2, Piano
+  Calendar, MapPin, Cake, User, Zap, Drum, Volume2, Piano, TrendingUp
 } from 'lucide-react';
 
 /* ── Config genre ── */
@@ -178,21 +178,31 @@ const MemberCard = ({ member, onClick, onEdit, onDelete }) => {
       </div>
 
       {/* ── Footer ── */}
-      {(member.dateEntree || member.notesAccompagnement) && (
-        <div className="mt-3.5 pt-3 border-t border-neutral-800 space-y-1.5">
-          {member.dateEntree && (
-            <div className="flex items-center gap-2 text-xs text-neutral-500">
-              <Calendar className="w-3 h-3 shrink-0" />
-              <span>Depuis le {new Date(member.dateEntree).toLocaleDateString('fr-FR')}</span>
-            </div>
-          )}
-          {member.notesAccompagnement && (
-            <p className="text-xs text-neutral-500 line-clamp-2 italic">
-              {member.notesAccompagnement}
-            </p>
-          )}
-        </div>
-      )}
+      <div className="mt-3.5 pt-3 border-t border-neutral-800 space-y-2">
+        {member.dateEntree && (
+          <div className="flex items-center gap-2 text-xs text-neutral-500">
+            <Calendar className="w-3 h-3 shrink-0" />
+            <span>Depuis le {new Date(member.dateEntree).toLocaleDateString('fr-FR')}</span>
+          </div>
+        )}
+        {member.notesAccompagnement && (
+          <p className="text-xs text-neutral-500 line-clamp-2 italic">
+            {member.notesAccompagnement}
+          </p>
+        )}
+        
+        {/* Bouton Stats complètes */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            window.location.href = `/statistics`;
+          }}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 mt-2 bg-indigo-600/10 hover:bg-indigo-600/20 border border-indigo-500/30 hover:border-indigo-500/50 text-indigo-400 hover:text-indigo-300 rounded-lg transition-all text-xs font-medium group"
+        >
+          <TrendingUp className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+          <span>Voir stats complètes</span>
+        </button>
+      </div>
     </div>
   );
 };

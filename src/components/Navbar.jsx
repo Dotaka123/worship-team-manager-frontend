@@ -11,11 +11,9 @@ import NotificationBell from './NotificationBell';
 const navLinks = [
   { to: '/',            label: 'Dashboard',   icon: LayoutDashboard, exact: true },
   { to: '/members',     label: 'Membres',      icon: Users },
-  { to: '/search',      label: 'Recherche',    icon: Search }, // ✨ NOUVEAU
   { to: '/attendance',  label: 'Présences',    icon: CalendarCheck },
   { to: '/cotisations', label: 'Cotisations',  icon: Wallet },
   { to: '/statistics',  label: 'Statistiques', icon: BarChart3 },
-  { to: '/stats-advanced', label: 'Stats Avancées', icon: TrendingUp }, // ✨ NOUVEAU
 ];
 
 const adminLinks = [
