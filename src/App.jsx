@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Members from './pages/Members';
 import MemberDetail from './pages/MemberDetail';
+import MemberStats from './pages/MemberStats';
 import Attendance from './pages/Attendance';
 import Cotisations from './pages/Cotisations';
 import Notifications from './pages/Notifications';
@@ -42,6 +43,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="members" element={<Members />} />
             <Route path="members/:id" element={<MemberDetail />} />
+            <Route path="members/:id/stats" element={<MemberStats />} />
             <Route path="attendance" element={<Attendance />} />
             <Route path="cotisations" element={<Cotisations />} />
             <Route path="notifications" element={<Notifications />} />

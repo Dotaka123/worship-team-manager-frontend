@@ -195,7 +195,7 @@ const MemberCard = ({ member, onClick, onEdit, onDelete }) => {
         <button
           onClick={(e) => {
             e.stopPropagation();
-            window.location.href = `/statistics`;
+            window.location.href = `/members/${member._id}/stats`;
           }}
           className="w-full flex items-center justify-center gap-2 px-3 py-2 mt-2 bg-indigo-600/10 hover:bg-indigo-600/20 border border-indigo-500/30 hover:border-indigo-500/50 text-indigo-400 hover:text-indigo-300 rounded-lg transition-all text-xs font-medium group"
         >

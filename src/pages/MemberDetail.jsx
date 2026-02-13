@@ -152,7 +152,7 @@ const presencePieData = [
           </button>
           
           <button
-            onClick={() => navigate('/statistics')}
+            onClick={() => navigate('/stats-advanced')}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all text-sm font-medium shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 w-fit"
           >
             <BarChart3 className="w-4 h-4" />
