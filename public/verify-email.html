@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vérification Email - Worship Team</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated gradient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            animation: gradient-shift 15s ease infinite;
+            z-index: 0;
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(-5%, 5%) rotate(120deg); }
+            66% { transform: translate(5%, -5%) rotate(240deg); }
+        }
+
+        .container {
+            background: rgba(23, 23, 23, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 48px;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Logo with gradient */
+        .logo {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 24px;
+            box-shadow: 
+                0 8px 32px rgba(99, 102, 241, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translate(-100%, -100%) rotate(45deg); }
+            100% { transform: translate(100%, 100%) rotate(45deg); }
+        }
+
+        h1 {
+            color: #f5f5f5;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff 0%, #d1d5db 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #9ca3af;
+            font-size: 14px;
+            margin-bottom: 40px;
+            font-weight: 400;
+        }
+
+        /* Status icons */
+        .status-icon {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 44px;
+            margin: 0 auto 24px;
+            position: relative;
+        }
+
+        .status-icon.loading {
+            background: rgba(99, 102, 241, 0.1);
+            border: 2px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .status-icon.loading::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #6366f1;
+            border-right-color: #a855f7;
+            animation: spin 1s linear infinite;
+        }
+
+        .status-icon.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        .status-icon.success::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%);
+            animation: pulse-success 2s ease-out infinite;
+        }
+
+        .status-icon.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-success {
+            0%, 100% { transform: scale(1); opacity: 0; }
+            50% { transform: scale(1.5); opacity: 0.3; }
+        }
+
+        .spinner {
+            font-size: 32px;
+        }
+
+        /* Messages */
+        .message {
+            color: #f5f5f5;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .details {
+            color: #9ca3af;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        /* User card */
+        .user-card {
+            background: rgba(31, 41, 55, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 24px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .user-card .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .user-card .name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f5f5f5;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, #ffffff 0%, #d1d5db 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-card .email {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            margin: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 4px 16px rgba(99, 102, 241, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 8px 24px rgba(99, 102, 241, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: rgba(55, 65, 81, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(75, 85, 99, 0.8);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Redirect timer */
+        .redirect-timer {
+            color: #9ca3af;
+            font-size: 14px;
+            margin-top: 24px;
+            padding: 12px;
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .redirect-timer .dot {
+            width: 6px;
+            height: 6px;
+            background: #6366f1;
+            border-radius: 50%;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .countdown {
+            font-weight: 700;
+            color: #6366f1;
+        }
+
+        /* Error actions */
+        .error-actions {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 32px 24px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .logo {
+                width: 64px;
+                height: 64px;
+                font-size: 32px;
+            }
+
+            .btn {
+                width: 100%;
+                margin: 6px 0;
+            }
+        }
+
+        /* Loading animation enhancement */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .loading .spinner {
+            animation: float 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🎵</div>
+        <h1>Worship Team Manager</h1>
+        <p class="subtitle">Vérification de votre adresse email</p>
+
+        <div id="content">
+            <!-- Loading state -->
+            <div class="status-icon loading">
+                <span class="spinner">⏳</span>
+            </div>
+            <p class="message">Vérification en cours...</p>
+            <p class="details">Veuillez patienter pendant que nous vérifions votre email.</p>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - CHANGEZ CES URLS SELON VOTRE DÉPLOIEMENT
+        const API_URL = 'https://worship-team-manager.onrender.com/api';
+        const FRONTEND_URL = 'https://worship-team-manager-frontend.onrender.com';
+
+        // Fonction pour extraire le token de l'URL
+        function getTokenFromUrl() {
+            const pathParts = window.location.pathname.split('/');
+            return pathParts[pathParts.length - 1];
+        }
+
+        // Fonction pour afficher l'état de succès
+        function showSuccess(data) {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="status-icon success">✓</div>
+                <p class="message">Email vérifié avec succès !</p>
+                <p class="details">Votre compte a été activé. Vous allez être redirigé vers la page de connexion.</p>
+                ${data.name ? `
+                    <div class="user-card">
+                        <div class="label">Bienvenue</div>
+                        <div class="name">${data.name}</div>
+                        <div class="email">${data.email || ''}</div>
+                    </div>
+                ` : ''}
+                <div class="redirect-timer">
+                    <span class="dot"></span>
+                    <span>Redirection dans <span class="countdown" id="countdown">3</span> secondes...</span>
+                </div>
+            `;
+
+            // Sauvegarder le token si disponible
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+            }
+
+            // Compte à rebours et redirection
+            let count = 3;
+            const countdownEl = document.getElementById('countdown');
+            const interval = setInterval(() => {
+                count--;
+                if (countdownEl) countdownEl.textContent = count;
+                if (count <= 0) {
+                    clearInterval(interval);
+                    window.location.href = FRONTEND_URL + '/login';
+                }
+            }, 1000);
+        }
+
+        // Fonction pour afficher l'état d'erreur
+        function showError(message) {
+            const content = document.getElementById('content');
+            content.innerHTML = `
+                <div class="status-icon error">✗</div>
+                <p class="message">Vérification échouée</p>
+                <p class="details">${message}</p>
+                <div class="error-actions">
+                    <a href="${FRONTEND_URL}/resend-verification" class="btn">
+                        Renvoyer l'email de vérification
+                    </a>
+                    <a href="${FRONTEND_URL}/login" class="btn btn-secondary">
+                        Retour à la connexion
+                    </a>
+                </div>
+            `;
+        }
+
+        // Fonction principale de vérification
+        async function verifyEmail() {
+            const token = getTokenFromUrl();
+
+            if (!token || token === 'verify-email.html') {
+                showError('Token de vérification manquant. Veuillez utiliser le lien complet reçu par email.');
+                return;
+            }
+
+            try {
+                let response = await fetch(`${API_URL}/auth/verify-email/${token}`);
+
+                // Compatibilité avec des backends qui attendent ?token=<token>
+                if (!response.ok) {
+                    response = await fetch(`${API_URL}/auth/verify-email?token=${encodeURIComponent(token)}`);
+                }
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess(data);
+                } else {
+                    showError(data.message || 'Une erreur est survenue lors de la vérification.');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showError('Impossible de se connecter au serveur. Veuillez réessayer plus tard.');
+            }
+        }
+
+        // Lancer la vérification au chargement de la page
+        window.addEventListener('DOMContentLoaded', verifyEmail);
+    </script>
+</body>
+</html>
