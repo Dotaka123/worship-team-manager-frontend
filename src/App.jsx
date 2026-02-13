@@ -11,6 +11,8 @@ import Attendance from './pages/Attendance';
 import Cotisations from './pages/Cotisations';
 import Notifications from './pages/Notifications';
 import Statistics from './pages/Statistics';
+import StatisticsPage from './pages/StatisticsPage';
+import SearchPage from './pages/SearchPage';
 import VerifyEmail from './pages/VerifyEmail';
 import ResendVerification from './pages/ResendVerification';
 import UserPermissionsManager from './pages/admin/UserPermissionsManager';
@@ -44,6 +46,9 @@ function App() {
             <Route path="cotisations" element={<Cotisations />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="statistics" element={<Statistics />} />
+            {/* ✨ NOUVELLES ROUTES */}
+            <Route path="stats-advanced" element={<StatisticsPage />} />
+            <Route path="search" element={<SearchPage />} />
             <Route path="admin/permissions" element={<UserPermissionsManager />} />
           </Route>
 
