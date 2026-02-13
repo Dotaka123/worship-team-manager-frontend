@@ -1,14 +1,17 @@
 import axios from 'axios';
 
 // ✅ Utiliser la variable d'environnement pour l'URL de l'API
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// IMPORTANT: Ne PAS inclure /api à la fin de VITE_API_URL
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = `${API_BASE}/api`;
 
 console.log('🔗 API URL:', API_URL); // Pour déboguer
 
 // Instance axios configurée
 const api = axios.create({
   baseURL: API_URL,
-  headers: { 'Content-Type': 'application/json' }
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 10000 // 10 secondes
 });
 
 // Intercepteur pour ajouter le token
@@ -24,6 +27,14 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Log pour déboguer
+    console.error('❌ API Error:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      message: error.response?.data?.message || error.message
+    });
+
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
