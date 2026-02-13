@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Music4, Check, X, Loader2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../services/api';
 
 const VerifyEmail = () => {
   const { token } = useParams();
@@ -51,14 +51,12 @@ const VerifyEmail = () => {
       }
 
       try {
-        const API_URL = import.meta.env.VITE_API_URL || 'https://worship-team-manager.onrender.com/api';
-
         let response;
         try {
-          response = await axios.get(`${API_URL}/auth/verify-email/${token}`);
+          response = await api.get(`/auth/verify-email/${token}`);
         } catch (pathError) {
           // Compatibilité avec des backends qui attendent ?token=<token>
-          response = await axios.get(`${API_URL}/auth/verify-email`, {
+          response = await api.get('/auth/verify-email', {
             params: { token }
           });
         }

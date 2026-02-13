@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Music4, Mail, ArrowRight, Check } from 'lucide-react';
-import axios from 'axios';
+import api from '../services/api';
 
 const ResendVerification = () => {
   const location = useLocation();
@@ -16,8 +16,7 @@ const ResendVerification = () => {
     setLoading(true);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const response = await axios.post(`${API_URL}/auth/resend-verification`, { email });
+      const response = await api.post('/auth/resend-verification', { email });
       
       setSuccess(true);
     } catch (err) {

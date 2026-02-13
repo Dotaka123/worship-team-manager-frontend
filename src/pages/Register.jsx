@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Music4, Eye, EyeOff, ArrowRight, Mail, User, Lock, Check } from 'lucide-react';
-import axios from 'axios';
+import api from '../services/api';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -51,13 +51,13 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess(false);
 
     if (!validateForm()) return;
 
     setLoading(true);
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const response = await axios.post(`${API_URL}/auth/register`, {
+      const response = await api.post('/auth/register', {
         name,
         email,
         password
