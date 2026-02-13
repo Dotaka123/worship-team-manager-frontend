@@ -203,7 +203,7 @@ const presencePieData = [
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                     <div>
                       <h1 className="text-2xl font-bold text-white mb-1">
-                        {member.pseudo}
+                        {member.firstName} {member.lastName}
                       </h1>
                       <p className={`font-medium mb-4 ${genderStyle.text}`}>
                         {getRoleLabel()} {member.instrument && `• ${member.instrument}`}

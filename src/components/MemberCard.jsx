@@ -57,9 +57,7 @@ const getRoleLabel = (member) => {
 const MemberCard = ({ member, onClick, onEdit, onDelete }) => {
   const g = genderConfig[member.gender] || genderConfig.homme;
   const s = statusConfig[member.status] || statusConfig.inactif;
-  const initials = member.pseudo 
-    ? `${member.pseudo[0]?.toUpperCase() || ''}${member.pseudo[1]?.toUpperCase() || member.lastName?.charAt(0) || ''}` 
-    : `${member.firstName?.charAt(0) || ''}${member.lastName?.charAt(0) || ''}`.toUpperCase();
+  const initials = `${member.firstName?.charAt(0) || ''}${member.lastName?.charAt(0) || ''}`.toUpperCase();
 
   return (
     <div
@@ -90,7 +88,7 @@ const MemberCard = ({ member, onClick, onEdit, onDelete }) => {
           {/* Nom + badge statut */}
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-semibold text-neutral-100 truncate leading-tight">
-              {member.pseudo}
+              {member.firstName} {member.lastName}
             </h3>
             <span
               className={`inline-flex items-center gap-1.5 mt-1 px-2 py-0.5 text-xs font-medium rounded-full border ${s.cls}`}
