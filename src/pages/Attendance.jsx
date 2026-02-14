@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { membersAPI, attendanceAPI } from '../services/api';
 import AttendanceTable from '../components/AttendanceTable';
-import { Save, Check } from 'lucide-react';
+import { Save, Check, Search, X } from 'lucide-react';
 
 const Attendance = () => {
   const [members, setMembers] = useState([]);
@@ -23,6 +23,7 @@ const Attendance = () => {
   const [error, setError] = useState(null);
   const [updatingTypes, setUpdatingTypes] = useState(false);
   const [showSaveButton, setShowSaveButton] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Sauvegarder le type d'événement dans localStorage à chaque changement
   useEffect(() => {
@@ -60,6 +61,18 @@ const Attendance = () => {
 
     fetchData();
   }, [selectedDate]);
+
+  // Filtrer les membres par recherche
+  const filteredMembers = members.filter(member => {
+    if (!searchTerm) return true;
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      member.firstName?.toLowerCase().includes(searchLower) ||
+      member.lastName?.toLowerCase().includes(searchLower) ||
+      member.pseudo?.toLowerCase().includes(searchLower) ||
+      member.role?.toLowerCase().includes(searchLower)
+    );
+  });
 
   // Fonction pour mettre à jour le type de tous les enregistrements existants
   const handleUpdateAllTypes = async () => {
@@ -212,6 +225,33 @@ const Attendance = () => {
         </div>
       </div>
 
+      {/* Barre de recherche */}
+      <div className="mb-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+          <input
+            type="text"
+            placeholder="Rechercher un membre par nom, prénom, pseudo ou rôle..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-10 py-3 bg-neutral-900 border border-neutral-800 rounded-lg text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-300 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+        {searchTerm && (
+          <p className="mt-2 text-xs text-neutral-500">
+            {filteredMembers.length} membre(s) trouvé(s)
+          </p>
+        )}
+      </div>
+
       {/* Sélecteur de type d'événement */}
       <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 mb-4">
         <div className="flex items-center justify-between mb-3">
@@ -304,13 +344,16 @@ const Attendance = () => {
           <div className="p-6"><div className="bar-loader w-full" /></div>
         ) : error ? (
           <p className="p-6 text-red-400 text-sm">Erreur : {error}</p>
-        ) : members.length === 0 ? (
+        ) : filteredMembers.length === 0 ? (
           <p className="p-6 text-gray-400">
-            Aucun membre actif. Vérifie que tes membres ont le statut "actif".
+            {searchTerm 
+              ? `Aucun membre ne correspond à "${searchTerm}"`
+              : 'Aucun membre actif. Vérifie que tes membres ont le statut "actif".'
+            }
           </p>
         ) : (
           <AttendanceTable
-            members={members}
+            members={filteredMembers}
             attendance={attendance}
             onMark={handleMark}
             onClear={handleClear}
