@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Plus, Users, Loader2, Filter, SlidersHorizontal, X } from 'lucide-react';
+import { Plus, Users, Loader2, Filter, SlidersHorizontal, X, Search } from 'lucide-react';
 import api from '../services/api';
 import MemberCard from '../components/MemberCard';
 import MemberForm from '../components/MemberForm';
@@ -15,6 +15,7 @@ const Members = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Filtres avancés
   const [genderFilter, setGenderFilter] = useState('all');
@@ -95,10 +96,31 @@ const Members = () => {
   };
 
   const filteredMembers = members.filter(member => {
+    // Filtre de recherche
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = searchTerm === '' || 
+      member.firstName?.toLowerCase().includes(searchLower) ||
+      member.lastName?.toLowerCase().includes(searchLower) ||
+      member.pseudo?.toLowerCase().includes(searchLower) ||
+      member.email?.toLowerCase().includes(searchLower) ||
+      member.phone?.toLowerCase().includes(searchLower);
+    
+    // Filtre de statut
     const matchesStatus = filterStatus === 'all' || member.status === filterStatus;
     
-    // Filtre de genre
-    const matchesGender = genderFilter === 'all' || member.gender === genderFilter;
+    // Filtre de genre - CORRIGÉ
+    const normalizeGender = (gender) => {
+      if (!gender) return '';
+      const g = gender.toLowerCase();
+      // Normaliser toutes les variantes possibles
+      if (g === 'f' || g === 'femme' || g === 'féminin') return 'f';
+      if (g === 'm' || g === 'homme' || g === 'masculin') return 'm';
+      return g;
+    };
+    
+    const memberGender = normalizeGender(member.gender);
+    const filterGenderNormalized = genderFilter === 'F' ? 'f' : genderFilter === 'M' ? 'm' : genderFilter;
+    const matchesGender = genderFilter === 'all' || memberGender === filterGenderNormalized;
     
     // Filtre de rôle
     const normalizeRole = (role) => role ? role.toLowerCase().replace('(euse)', '').trim() : '';
@@ -120,7 +142,7 @@ const Members = () => {
       }
     }
     
-    return matchesStatus && matchesGender && matchesRole && matchesAge;
+    return matchesSearch && matchesStatus && matchesGender && matchesRole && matchesAge;
   });
 
   const clearAllFilters = () => {
@@ -128,6 +150,7 @@ const Members = () => {
     setGenderFilter('all');
     setRoleFilter('all');
     setAgeFilter('all');
+    setSearchTerm('');
   };
 
   const statusCount = {
@@ -165,6 +188,28 @@ const Members = () => {
           <p className="text-sm text-neutral-500">
             {members.length} membre{members.length > 1 ? 's' : ''} dans l'équipe de louange
           </p>
+        </div>
+
+        {/* Barre de recherche */}
+        <div className="mb-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+            <input
+              type="text"
+              placeholder="Rechercher par nom, prénom, pseudo, email ou téléphone..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-neutral-900 border border-neutral-800 rounded-lg text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-300 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Barre d'outils - Responsive */}
@@ -220,7 +265,7 @@ const Members = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* Filtre Genre */}
+                {/* Filtre Genre - CORRIGÉ */}
                 <div>
                   <label className="block text-xs font-medium text-neutral-400 mb-2">Genre</label>
                   <div className="flex gap-2">
@@ -296,7 +341,7 @@ const Members = () => {
               </div>
 
               {/* Résumé des filtres actifs */}
-              {(genderFilter !== 'all' || roleFilter !== 'all' || ageFilter !== 'all') && (
+              {(genderFilter !== 'all' || roleFilter !== 'all' || ageFilter !== 'all' || searchTerm !== '') && (
                 <div className="pt-3 border-t border-neutral-800">
                   <p className="text-xs text-neutral-500">
                     <span className="font-medium">{filteredMembers.length}</span> membre(s) correspondent aux critères
